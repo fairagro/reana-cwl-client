@@ -1,9 +1,8 @@
+use crate::error::APIResult;
 use reana_auth::TokenProvider;
 use reqwest::{Client, Method, RequestBuilder};
 use std::sync::Arc;
 use url::Url;
-
-use crate::error::APIResult;
 
 pub struct ReanaClient {
     http_client: Client,

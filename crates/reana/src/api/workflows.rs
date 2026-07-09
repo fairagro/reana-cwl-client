@@ -11,8 +11,14 @@ use crate::{
     models::workflows::WorkflowJson,
 };
 use reqwest::header::CONTENT_TYPE;
-use std::{path::Path, sync::Arc};
-use tokio::fs;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
+use tokio::{
+    fs::{self, File},
+    io::AsyncWriteExt,
+};
 
 pub async fn list(reana: Arc<ReanaClient>) -> APIResult<WorkflowListResponse> {
     let request = reana
@@ -126,6 +132,28 @@ pub async fn upload_file(
     let json = response.json::<WorkflowWorkspaceResponse>().await?;
 
     Ok(json)
+}
+
+pub async fn download_file(
+    reana: Arc<ReanaClient>,
+    workflow_id_or_name: &str,
+    file_name: &String,
+) -> APIResult<PathBuf> {
+    let request = reana
+        .build_request(
+            reqwest::Method::GET,
+            &format!("workflows/{workflow_id_or_name}/workspace/{file_name}"),
+        )
+        .await?;
+
+    let response = request.send().await?.error_for_status()?;
+    let content = response.bytes().await?;
+
+    let output_path = Path::new(file_name);
+    let mut file = File::create(output_path).await?;
+    file.write_all(&content).await?;
+
+    Ok(output_path.to_path_buf())
 }
 
 pub async fn specification(
