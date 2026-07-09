@@ -10,3 +10,6 @@ authors.workspace = true
 async-trait.workspace = true
 reqwest.workspace = true
 miette.workspace = true
+
+[lib]
+path = "lib.rs"
