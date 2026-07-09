@@ -1,12 +1,12 @@
 use crate::{
     api::{
         JSON_CONTENT_TYPE, OCTET_CONTENT_TYPE,
+        client::ReanaClient,
         response::{
             WorkflowListResponse, WorkflowMessageResponse, WorkflowStatusResponse,
             WorkflowSubmitResponse, WorkflowWorkspaceResponse,
         },
     },
-    client::ReanaClient,
     error::APIResult,
     models::workflows::WorkflowJson,
 };

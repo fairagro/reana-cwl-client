@@ -1,7 +1,8 @@
-use crate::{client::ReanaClient, error::APIResult};
+use crate::{api::client::ReanaClient, error::APIResult};
 use reqwest::Method;
 use std::sync::Arc;
 
+pub mod client;
 pub mod response;
 pub mod workflows;
 
