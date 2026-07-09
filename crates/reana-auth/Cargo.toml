@@ -1,0 +1,12 @@
+[package]
+name = "reana-auth"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+async-trait.workspace = true
+reqwest.workspace = true
+miette.workspace = true

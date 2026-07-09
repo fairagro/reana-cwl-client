@@ -1,0 +1,20 @@
+[package]
+name = "reana"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+reana-auth = { version = "0.0.1", path = "../reana-auth" }
+url.workspace = true
+reqwest.workspace = true
+chrono.workspace = true
+serde.workspace = true
+tokio.workspace = true
+commonwl.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+miette.workspace = true
+pathdiff.workspace = true
