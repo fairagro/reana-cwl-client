@@ -1,9 +1,12 @@
 use miette::IntoDiagnostic;
 use reana::api;
+use tracing::info;
 
 use crate::client;
 
 pub async fn ping() -> miette::Result<()> {
     let client = client()?;
-    api::ping(client).await.into_diagnostic()
+    let code = api::ping(client).await.into_diagnostic()?;
+    info!("Server returned {code}");
+    Ok(())
 }

@@ -16,10 +16,12 @@ impl ReanaClient {
             base_url.set_path(&format!("{}/", base_url.path()));
         }
 
-        let http_client = Client::builder()
-            .timeout(std::time::Duration::from_secs(30))
-            .build()
-            .expect("failed to build reqwest client");
+        let cb = Client::builder().timeout(std::time::Duration::from_secs(30));
+
+        #[cfg(debug_assertions)]
+        let cb = cb.danger_accept_invalid_certs(true);
+
+        let http_client = cb.build().expect("failed to build reqwest client");
         Self {
             http_client,
             base_url,

@@ -21,3 +21,5 @@ reana-auth = { version = "0.0.1", path = "../reana-auth" }
 miette = { workspace = true, features = ["fancy"] }
 url.workspace = true
 tokio.workspace = true
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+tracing.workspace = true

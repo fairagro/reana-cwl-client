@@ -1,5 +1,5 @@
 use crate::commands;
-use clap::{Args, Command, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -16,7 +16,7 @@ pub enum Commands {
 
 pub async fn handle_command_args(args: Cli) -> miette::Result<()> {
     match args.command {
-        Commands::Start(workflow_args) => todo!(),
+        Commands::Start(_workflow_args) => todo!(),
         Commands::Ping => commands::ping().await?,
     }
     Ok(())
