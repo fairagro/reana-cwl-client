@@ -1,0 +1,23 @@
+[package]
+name = "reana-client"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "reana-client"
+path = "main.rs"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+clap = { version = "4.6.1", features = ["derive"] }
+dotenvy = "0.15.7"
+reana = { version = "0.0.1", path = "../reana" }
+reana-auth = { version = "0.0.1", path = "../reana-auth" }
+miette = { workspace = true, features = ["fancy"] }
+url.workspace = true
+tokio.workspace = true
