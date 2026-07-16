@@ -26,4 +26,12 @@ pub enum APIError {
     #[diagnostic(code = "url::ParseError")]
     #[error("Could not parse URL")]
     URL(#[from] url::ParseError),
+
+    #[diagnostic(code = "commonwl::Error")]
+    #[error("Could not handle CWL")]
+    CWL(#[from] commonwl::Error),
+
+    #[diagnostic(code = "anyhow::Error")]
+    #[error("Unknown Error")]
+    Unknown(#[from] anyhow::Error),
 }

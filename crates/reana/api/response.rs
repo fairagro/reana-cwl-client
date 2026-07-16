@@ -47,6 +47,11 @@ pub struct ItemSize {
 }
 
 #[derive(Deserialize, Debug, Default)]
+pub struct MessageResponse {
+    pub message: String,
+}
+
+#[derive(Deserialize, Debug, Default)]
 pub struct WorkflowMessageResponse {
     pub workflow_id: String,
     pub workflow_name: String,
@@ -58,7 +63,7 @@ pub struct WorkflowSubmitResponse {
     pub workflow_id: String,
     pub workflow_name: String,
     pub message: String,
-    pub run_number: u64,
+    pub run_number: String,
     pub user: String,
     pub status: WorkflowStatus,
 }

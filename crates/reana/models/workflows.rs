@@ -10,6 +10,22 @@ pub struct WorkflowJson {
     pub workflow: WorkflowSpecification,
 }
 
+impl WorkflowJson {
+    pub fn new(
+        reana_version: String,
+        workflow: WorkflowSpecification,
+        inputs: WorkflowInputs,
+        outputs: WorkflowOutputs,
+    ) -> Self {
+        WorkflowJson {
+            inputs,
+            outputs,
+            version: reana_version,
+            workflow,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WorkflowSpecification {
     pub file: String,
@@ -20,12 +36,12 @@ pub struct WorkflowSpecification {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WorkflowInputs {
-    directories: Vec<PathBuf>,
-    files: Vec<PathBuf>,
-    parameters: HashMap<String, DefaultValue>,
+    pub directories: Vec<PathBuf>,
+    pub files: Vec<PathBuf>,
+    pub parameters: HashMap<String, DefaultValue>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WorkflowOutputs {
-    files: Vec<String>,
+    pub files: Vec<String>,
 }

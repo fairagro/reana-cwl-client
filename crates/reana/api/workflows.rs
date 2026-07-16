@@ -2,8 +2,9 @@ use crate::{
     api::{
         JSON_CONTENT_TYPE, OCTET_CONTENT_TYPE,
         client::ReanaClient,
+        report,
         response::{
-            WorkflowListResponse, WorkflowMessageResponse, WorkflowStatusResponse,
+            MessageResponse, WorkflowListResponse, WorkflowMessageResponse, WorkflowStatusResponse,
             WorkflowSubmitResponse, WorkflowWorkspaceResponse,
         },
     },
@@ -19,12 +20,19 @@ use tokio::{
     fs::{self, File},
     io::AsyncWriteExt,
 };
+use tracing::debug;
 
 pub async fn list(reana: Arc<ReanaClient>) -> APIResult<WorkflowListResponse> {
     let request = reana
         .build_request(reqwest::Method::GET, "workflows")
         .await?;
-    let response = request.send().await?.error_for_status()?;
+
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
 
     let workflows = response.json::<WorkflowListResponse>().await?;
 
@@ -45,7 +53,13 @@ pub async fn create(
         .query(&name.map(|n| [("workflow_name", n)]).unwrap_or_default())
         .json(&value);
 
-    let response = request.send().await?.error_for_status()?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
+
     let json = response.json::<WorkflowMessageResponse>().await?;
 
     Ok(json)
@@ -62,7 +76,13 @@ pub async fn start(
         )
         .await?;
 
-    let response = request.send().await?.error_for_status()?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
+
     let json = response.json::<WorkflowSubmitResponse>().await?;
 
     Ok(json)
@@ -79,7 +99,12 @@ pub async fn status(
         )
         .await?;
 
-    let response = request.send().await?.error_for_status()?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
     let json = response.json::<WorkflowStatusResponse>().await?;
 
     Ok(json)
@@ -96,7 +121,12 @@ pub async fn workspace(
         )
         .await?;
 
-    let response = request.send().await?.error_for_status()?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
     let json = response.json::<WorkflowWorkspaceResponse>().await?;
 
     Ok(json)
@@ -107,7 +137,7 @@ pub async fn upload_file(
     workflow_id_or_name: &str,
     file: &Path,
     working_dir: &Path,
-) -> APIResult<WorkflowWorkspaceResponse> {
+) -> APIResult<MessageResponse> {
     let file_name = if file.is_absolute() {
         pathdiff::diff_paths(file, working_dir).unwrap_or(file.to_path_buf())
     } else {
@@ -128,8 +158,13 @@ pub async fn upload_file(
         .query(&[("file_name", &file_name)])
         .body(content);
 
-    let response = request.send().await?.error_for_status()?;
-    let json = response.json::<WorkflowWorkspaceResponse>().await?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
+    let json = response.json::<MessageResponse>().await?;
 
     Ok(json)
 }
@@ -147,7 +182,12 @@ pub async fn download_file(
         )
         .await?;
 
-    let response = request.send().await?.error_for_status()?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
     let content = response.bytes().await?;
 
     let output_path = output_folder.join(file_name);
@@ -168,7 +208,12 @@ pub async fn specification(
         )
         .await?;
 
-    let response = request.send().await?.error_for_status()?;
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
     let json = response.json::<WorkflowJson>().await?;
 
     Ok(json)

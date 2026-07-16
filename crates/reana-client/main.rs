@@ -9,7 +9,7 @@ async fn main() -> miette::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                format!("{}=debug,reqwest=info", env!("CARGO_CRATE_NAME")).into()
+                format!("{}=debug,reana=debug,reqwest=info", env!("CARGO_CRATE_NAME")).into()
             }),
         )
         .with(tracing_subscriber::fmt::layer())

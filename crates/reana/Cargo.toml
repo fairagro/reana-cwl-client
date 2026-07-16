@@ -18,6 +18,9 @@ serde_json.workspace = true
 thiserror.workspace = true
 miette.workspace = true
 pathdiff.workspace = true
+anyhow = "1.0.103"
+tracing.workspace = true
+dunce.workspace = true
 
 [lib]
 path = "lib.rs"
