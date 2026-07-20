@@ -6,22 +6,20 @@ class: CommandLineTool
 requirements:
 - class: InitialWorkDirRequirement
   listing:
-  - entryname: workflows/plot/plot.py
+  - entryname: plot.py
     entry:
       $include: plot.py
 - class: DockerRequirement
-  dockerFile: 
-    $include: Dockerfile
-  dockerImageId: matplotlib
+  dockerPull: sciwin/python-datascience
 
 inputs:
 - id: results
   type: File
   default:
     class: File
-    location: '../../results.csv'
+    location: ../../results.csv
   inputBinding:
-    prefix: '--results'
+    prefix: --results
 
 outputs:
 - id: o_results
@@ -30,5 +28,5 @@ outputs:
     glob: results.svg
 
 baseCommand:
-- python
-- workflows/plot/plot.py
+- python3
+- plot.py
