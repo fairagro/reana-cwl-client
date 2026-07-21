@@ -8,6 +8,7 @@ license.workspace = true
 authors.workspace = true
 keywords.workspace = true
 categories.workspace = true
+readme = "README.md"
 
 [dependencies]
 reana-auth = { version = "0.1.0", path = "../reana-auth" }
