@@ -4,8 +4,8 @@ use crate::{
         client::ReanaClient,
         report,
         response::{
-            MessageResponse, WorkflowListResponse, WorkflowMessageResponse, WorkflowStatusResponse,
-            WorkflowSubmitResponse, WorkflowWorkspaceResponse,
+            MessageResponse, WorkflowListResponse, WorkflowLogsResponse, WorkflowMessageResponse,
+            WorkflowStatusResponse, WorkflowSubmitResponse, WorkflowWorkspaceResponse,
         },
     },
     error::APIResult,
@@ -118,6 +118,31 @@ pub async fn status(
         return Err(err.into());
     }
     let json = response.json::<WorkflowStatusResponse>().await?;
+
+    Ok(json)
+}
+
+/// Sends a logs Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
+pub async fn logs(
+    reana: Arc<ReanaClient>,
+    workflow_id_or_name: &str,
+) -> APIResult<WorkflowLogsResponse> {
+    let request = reana
+        .build_request(
+            reqwest::Method::GET,
+            &format!("workflows/{workflow_id_or_name}/logs"),
+        )
+        .await?;
+
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
+    let json = response.json::<WorkflowLogsResponse>().await?;
 
     Ok(json)
 }
@@ -300,7 +325,8 @@ mod tests {
         let server_url = server.url();
         let client = make_client(&server_url);
 
-        let server_mock = server.mock("GET", "/workflows")
+        let server_mock = server
+            .mock("GET", "/workflows")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -318,7 +344,8 @@ mod tests {
                 })
                 .to_string(),
             )
-            .create_async().await;
+            .create_async()
+            .await;
 
         let response = list(client.clone()).await?;
 
@@ -334,7 +361,8 @@ mod tests {
         let server_url = server.url();
         let client = make_client(&server_url);
 
-        let server_mock = server.mock("POST", "/workflows")
+        let server_mock = server
+            .mock("POST", "/workflows")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -354,7 +382,8 @@ mod tests {
                 })
                 .to_string(),
             )
-            .create_async().await;
+            .create_async()
+            .await;
 
         let workflow = test_workflow_json();
         let response = create(client.clone(), &workflow, Some("test-workflow")).await?;
@@ -371,7 +400,8 @@ mod tests {
         let server_url = server.url();
         let client = make_client(&server_url);
 
-        let server_mock = server.mock("POST", "/workflows/test-workflow/start")
+        let server_mock = server
+            .mock("POST", "/workflows/test-workflow/start")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -389,7 +419,8 @@ mod tests {
                 })
                 .to_string(),
             )
-            .create_async().await;
+            .create_async()
+            .await;
 
         let response = start(client.clone(), "test-workflow").await?;
 
@@ -405,7 +436,8 @@ mod tests {
         let server_url = server.url();
         let client = make_client(&server_url);
 
-        let server_mock = server.mock("GET", "/workflows/test-workflow/status")
+        let server_mock = server
+            .mock("GET", "/workflows/test-workflow/status")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -430,7 +462,8 @@ mod tests {
                 })
                 .to_string(),
             )
-            .create_async().await;
+            .create_async()
+            .await;
 
         let response = status(client.clone(), "test-workflow").await?;
 
@@ -446,7 +479,8 @@ mod tests {
         let server_url = server.url();
         let client = make_client(&server_url);
 
-        let server_mock = server.mock("GET", "/workflows/test-workflow/workspace")
+        let server_mock = server
+            .mock("GET", "/workflows/test-workflow/workspace")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -469,7 +503,8 @@ mod tests {
                 })
                 .to_string(),
             )
-            .create_async().await;
+            .create_async()
+            .await;
 
         let response = workspace(client.clone(), "test-workflow").await?;
 
@@ -496,7 +531,8 @@ mod tests {
             "outputs": { "files": [] }
         });
 
-        let server_mock = server.mock("GET", "/workflows/test-workflow/specification")
+        let server_mock = server
+            .mock("GET", "/workflows/test-workflow/specification")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -504,7 +540,8 @@ mod tests {
             .with_status(200)
             .with_header("content-type", "application/json")
             .with_body(response_body.to_string())
-            .create_async().await;
+            .create_async()
+            .await;
 
         let response = specification(client.clone(), "test-workflow").await?;
 
@@ -524,7 +561,8 @@ mod tests {
         let file_path = temp_dir.path().join("hello.txt");
         tokio::fs::write(&file_path, b"hello world").await?;
 
-        let server_mock = server.mock("POST", "/workflows/test-workflow/workspace")
+        let server_mock = server
+            .mock("POST", "/workflows/test-workflow/workspace")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
@@ -535,7 +573,8 @@ mod tests {
             .with_status(200)
             .with_header("content-type", "application/json")
             .with_body(r#"{"message":"uploaded"}"#)
-            .create_async().await;
+            .create_async()
+            .await;
 
         let response =
             upload_file(client.clone(), "test-workflow", &file_path, temp_dir.path()).await?;
@@ -555,14 +594,16 @@ mod tests {
         let file_name = "output.txt";
         let expected_content = b"downloaded content";
 
-        let server_mock = server.mock("GET", "/workflows/test-workflow/workspace/output.txt")
+        let server_mock = server
+            .mock("GET", "/workflows/test-workflow/workspace/output.txt")
             .match_query(Matcher::UrlEncoded(
                 "access_token".into(),
                 "test-token".into(),
             ))
             .with_status(200)
             .with_body(expected_content.as_slice())
-            .create_async().await;
+            .create_async()
+            .await;
 
         let output_path =
             download_file(client.clone(), "test-workflow", file_name, temp_dir.path()).await?;

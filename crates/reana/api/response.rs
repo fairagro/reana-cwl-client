@@ -73,11 +73,19 @@ pub struct WorkflowSubmitResponse {
 pub struct WorkflowStatusResponse {
     pub id: String,
     pub created: chrono::NaiveDateTime,
-    //logs mising
+    pub logs: String,
     pub name: String,
     pub status: WorkflowStatus,
     pub user: String,
     pub progress: WorkflowProgress,
+}
+
+#[derive(Deserialize, Debug, Default)]
+pub struct WorkflowLogsResponse {
+    pub logs: String,
+    pub workflow_id: String,
+    pub workflow_name: String,
+    pub user: String,
 }
 
 #[derive(Deserialize, Debug, Default)]

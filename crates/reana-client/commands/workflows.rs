@@ -3,8 +3,10 @@ use std::env;
 use crate::{
     cli::{DownloadArgs, UploadArgs, WorkflowArgs, WorkflowIdArgs},
     client,
+    commands::{JobLog, WorkflowLogs},
 };
 use miette::IntoDiagnostic;
+use owo_colors::OwoColorize;
 use reana::client;
 use tracing::info;
 
@@ -114,6 +116,63 @@ pub async fn status(args: WorkflowIdArgs) -> miette::Result<()> {
     client::status(client, &args.workflow_name_or_id).await?;
 
     Ok(())
+}
+
+/// Requests the logs of a workflow
+/// # Errors
+/// Returns Error if the request fails
+pub async fn logs(args: WorkflowIdArgs) -> miette::Result<()> {
+    let client = client()?;
+
+    let res = client::logs(client, &args.workflow_name_or_id).await?;
+
+    let parsed: WorkflowLogs = serde_json::from_str(&res.logs).into_diagnostic()?;
+
+    if parsed.job_logs.is_empty() {
+        println!("No job logs available yet.");
+    }
+
+    for (job_id, job) in &parsed.job_logs {
+        print_job_header(job_id, job);
+        println!("{}", job.logs.trim_end());
+        println!();
+    }
+
+    if let Some(wf_logs) = &parsed.workflow_logs
+        && !wf_logs.trim().is_empty()
+    {
+        println!("{}", "── engine logs ──".dimmed());
+        println!("{}", wf_logs.trim_end());
+    }
+
+    Ok(())
+}
+
+fn print_job_header(job_id: &str, job: &JobLog) {
+    let status_colored = match job.status.as_str() {
+        "finished" => job.status.green().to_string(),
+        "failed" => job.status.red().to_string(),
+        "running" => job.status.yellow().to_string(),
+        _ => job.status.to_string(),
+    };
+
+    println!(
+        "{} {} [{}]",
+        "▶".bold(),
+        job.job_name.bold(),
+        status_colored,
+    );
+    println!(
+        "  {} {}   {} {}",
+        "image:".dimmed(),
+        job.docker_img,
+        "job id:".dimmed(),
+        job_id,
+    );
+    if let (Some(start), Some(end)) = (&job.started_at, &job.finished_at) {
+        println!("  {} {} → {}", "time:".dimmed(), start, end);
+    }
+    println!();
 }
 
 /// Requests the workspace of a workflow

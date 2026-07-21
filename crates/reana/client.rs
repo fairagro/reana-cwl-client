@@ -2,7 +2,7 @@ use crate::{
     api::{
         self,
         client::ReanaClient,
-        response::{WorkflowListResponse, WorkflowWorkspaceResponse},
+        response::{WorkflowListResponse, WorkflowLogsResponse, WorkflowWorkspaceResponse},
     },
     error::ClientResult,
     io::{get_workflow_inputs, get_workflow_outputs},
@@ -109,6 +109,18 @@ pub async fn status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult
     info!("[{workflow_id}] {:?}", res.status);
 
     Ok(())
+}
+
+/// Sends a logs request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
+pub async fn logs(
+    client: Arc<ReanaClient>,
+    workflow_id: &str,
+) -> ClientResult<WorkflowLogsResponse> {
+    let res = api::workflows::logs(client.clone(), workflow_id).await?;
+    
+    Ok(res)
 }
 
 /// Sends a workspace request to the REANA Endpoint
