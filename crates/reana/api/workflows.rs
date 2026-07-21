@@ -243,6 +243,7 @@ pub async fn download_file(
     fs::create_dir_all(&output_path.parent().unwrap()).await?;
     let mut file = File::create(&output_path).await?;
     file.write_all(&content).await?;
+    file.flush().await?;
 
     Ok(output_path)
 }
