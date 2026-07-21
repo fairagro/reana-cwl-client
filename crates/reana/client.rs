@@ -1,12 +1,7 @@
 use crate::{
     api::{
-        self,
-        client::ReanaClient,
-        response::{WorkflowListResponse, WorkflowLogsResponse, WorkflowWorkspaceResponse},
-    },
-    error::ClientResult,
-    io::{get_workflow_inputs, get_workflow_outputs},
-    models::workflows::{WorkflowJson, WorkflowSpecification},
+        self, client::ReanaClient, response::{WorkflowListResponse, WorkflowLogsResponse, WorkflowSpecificationResponse, WorkflowWorkspaceResponse},
+    }, error::ClientResult, io::{get_workflow_inputs, get_workflow_outputs}, models::workflows::{WorkflowJson, WorkflowSpecification},
 };
 use commonwl::{
     engine::load_input_file_from_file,
@@ -119,7 +114,7 @@ pub async fn logs(
     workflow_id: &str,
 ) -> ClientResult<WorkflowLogsResponse> {
     let res = api::workflows::logs(client.clone(), workflow_id).await?;
-    
+
     Ok(res)
 }
 
@@ -139,5 +134,16 @@ pub async fn workspace(
 /// Returns Error if the request fails
 pub async fn list(client: Arc<ReanaClient>) -> ClientResult<WorkflowListResponse> {
     let res = api::workflows::list(client.clone()).await?;
+    Ok(res)
+}
+
+/// Sends a specification request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
+pub async fn specification(
+    client: Arc<ReanaClient>,
+    workflow_id: &str,
+) -> ClientResult<WorkflowSpecificationResponse> {
+    let res = api::workflows::specification(client.clone(), workflow_id).await?;
     Ok(res)
 }

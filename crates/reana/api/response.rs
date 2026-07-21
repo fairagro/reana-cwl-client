@@ -1,4 +1,10 @@
+use crate::models::workflows::WorkflowJson;
 use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct WorkflowSpecificationResponse {
+    pub specification: WorkflowJson,
+}
 
 #[derive(Deserialize, Debug, Default)]
 pub struct WorkflowListResponse {

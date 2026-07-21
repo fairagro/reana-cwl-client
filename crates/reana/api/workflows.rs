@@ -5,7 +5,8 @@ use crate::{
         report,
         response::{
             MessageResponse, WorkflowListResponse, WorkflowLogsResponse, WorkflowMessageResponse,
-            WorkflowStatusResponse, WorkflowSubmitResponse, WorkflowWorkspaceResponse,
+            WorkflowSpecificationResponse, WorkflowStatusResponse, WorkflowSubmitResponse,
+            WorkflowWorkspaceResponse,
         },
     },
     error::APIResult,
@@ -252,7 +253,7 @@ pub async fn download_file(
 pub async fn specification(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
-) -> APIResult<WorkflowJson> {
+) -> APIResult<WorkflowSpecificationResponse> {
     let request = reana
         .build_request(
             reqwest::Method::GET,
@@ -266,7 +267,7 @@ pub async fn specification(
         report(response).await;
         return Err(err.into());
     }
-    let json = response.json::<WorkflowJson>().await?;
+    let json = response.json::<WorkflowSpecificationResponse>().await?;
 
     Ok(json)
 }
@@ -450,6 +451,7 @@ mod tests {
                     "created": "2024-01-01T00:00:00",
                     "name": "test-workflow",
                     "status": "running",
+                    "logs": "gibberish",
                     "user": "tester",
                     "progress": {
                         "current_command": null,
@@ -495,7 +497,7 @@ mod tests {
                         {
                             "name": "output.txt",
                             "size": { "human_readable": "1B", "raw": 1 },
-                            "last_modified": "2024-01-01T00:00:00"
+                            "last-modified": "2024-01-01T00:00:00"
                         }
                     ],
                     "page": 1,
@@ -521,14 +523,16 @@ mod tests {
         let client = make_client(&server_url);
 
         let response_body = json!({
-            "version": "0.9.4",
-            "workflow": {
-                "file": "workflow.cwl",
-                "specification": { "$graph": [], "cwlVersion": null },
-                "type": "cwl"
-            },
-            "inputs": { "directories": [], "files": [], "parameters": {} },
-            "outputs": { "files": [] }
+            "specification": {
+                "version": "0.9.4",
+                "workflow": {
+                    "file": "workflow.cwl",
+                    "specification": { "$graph": [], "cwlVersion": null },
+                    "type": "cwl"
+                },
+                "inputs": { "directories": [], "files": [], "parameters": {} },
+                "outputs": { "files": [] }
+            }
         });
 
         let server_mock = server
@@ -544,10 +548,9 @@ mod tests {
             .await;
 
         let response = specification(client.clone(), "test-workflow").await?;
-
+        assert_eq!(response.specification.workflow.file, "workflow.cwl");
+        assert_eq!(response.specification.version, "0.9.4");
         server_mock.assert_async().await;
-        assert_eq!(response.version, "0.9.4");
-        assert_eq!(response.workflow.file, "workflow.cwl");
         Ok(())
     }
 

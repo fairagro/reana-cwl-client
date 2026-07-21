@@ -18,6 +18,7 @@ pub enum Commands {
     Upload(UploadArgs),
     Download(DownloadArgs),
     Workspace(WorkflowIdArgs),
+    Specification(WorkflowIdArgs),
     List,
     Ping,
 }
@@ -35,6 +36,7 @@ pub async fn handle_command_args(args: Cli) -> miette::Result<()> {
         Commands::Upload(args) => commands::workflows::upload(args).await,
         Commands::Download(args) => commands::workflows::download(args).await,
         Commands::Workspace(args) => commands::workflows::workspace(args).await,
+        Commands::Specification(args) => commands::workflows::specification(args).await,
         Commands::List => commands::workflows::list().await,
         Commands::Ping => commands::ping().await,
     }

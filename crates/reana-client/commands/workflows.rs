@@ -201,3 +201,16 @@ pub async fn list() -> miette::Result<()> {
     }
     Ok(())
 }
+
+/// Requests the workspace of a workflow
+/// # Errors
+/// Returns Error if the request fails
+pub async fn specification(args: WorkflowIdArgs) -> miette::Result<()> {
+    let client = client()?;
+
+    let res = client::specification(client, &args.workflow_name_or_id).await?;
+    let json = serde_json::to_string_pretty(&res).into_diagnostic()?;
+    println!("{json}");
+
+    Ok(())
+}
