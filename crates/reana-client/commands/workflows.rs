@@ -6,6 +6,7 @@ use crate::{
 };
 use miette::IntoDiagnostic;
 use reana::client;
+use tracing::info;
 
 /// Creates and runs
 /// # Errors
@@ -110,7 +111,34 @@ pub async fn upload(args: UploadArgs) -> miette::Result<()> {
 pub async fn status(args: WorkflowIdArgs) -> miette::Result<()> {
     let client = client()?;
 
-    client::get_status(client, &args.workflow_name_or_id).await?;
+    client::status(client, &args.workflow_name_or_id).await?;
 
+    Ok(())
+}
+
+/// Requests the workspace of a workflow
+/// # Errors
+/// Returns Error if the request fails
+pub async fn workspace(args: WorkflowIdArgs) -> miette::Result<()> {
+    let client = client()?;
+
+    let res = client::workspace(client, &args.workflow_name_or_id).await?;
+    let list = res.items;
+    let json = serde_json::to_string_pretty(&list).into_diagnostic()?;
+    println!("{json}");
+
+    Ok(())
+}
+
+/// Requests the workspace of a workflow
+/// # Errors
+/// Returns Error if the request fails
+pub async fn list() -> miette::Result<()> {
+    let client = client()?;
+
+    let res = client::list(client).await?;
+    for item in res.items {
+        info!("{}:\t{:?}", item.name, item.status.unwrap())
+    }
     Ok(())
 }

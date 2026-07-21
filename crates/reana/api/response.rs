@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug, Default)]
 pub struct WorkflowListResponse {
@@ -32,6 +32,7 @@ pub struct WorkflowProgressDates {
 #[derive(Deserialize, Debug, Default, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum WorkflowStatus {
+    Created,
     Running,
     Finished,
     Failed,
@@ -40,7 +41,7 @@ pub enum WorkflowStatus {
     Queued,
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Default)]
 pub struct ItemSize {
     pub human_readable: String,
     pub raw: i64, //supports -1
@@ -106,9 +107,10 @@ pub struct WorkflowWorkspaceResponse {
     pub total: u64,
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Serialize, Debug, Default)]
 pub struct WorkflowWorkspaceItem {
     pub name: String,
     pub size: ItemSize,
+    #[serde(rename = "last-modified")]
     pub last_modified: chrono::NaiveDateTime,
 }

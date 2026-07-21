@@ -1,5 +1,9 @@
 use crate::{
-    api::{self, client::ReanaClient},
+    api::{
+        self,
+        client::ReanaClient,
+        response::{WorkflowListResponse, WorkflowWorkspaceResponse},
+    },
     error::ClientResult,
     io::{get_workflow_inputs, get_workflow_outputs},
     models::workflows::{WorkflowJson, WorkflowSpecification},
@@ -100,9 +104,28 @@ pub async fn download_file(
 /// Sends a status request to the REANA Endpoint
 /// # Errors
 /// Returns Error if the request fails
-pub async fn get_status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
+pub async fn status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
     let res = api::workflows::status(client.clone(), workflow_id).await?;
     info!("[{workflow_id}] {:?}", res.status);
 
     Ok(())
+}
+
+/// Sends a workspace request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
+pub async fn workspace(
+    client: Arc<ReanaClient>,
+    workflow_id: &str,
+) -> ClientResult<WorkflowWorkspaceResponse> {
+    let res = api::workflows::workspace(client.clone(), workflow_id).await?;
+    Ok(res)
+}
+
+/// Sends a list request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
+pub async fn list(client: Arc<ReanaClient>) -> ClientResult<WorkflowListResponse> {
+    let res = api::workflows::list(client.clone()).await?;
+    Ok(res)
 }

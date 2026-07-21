@@ -3819,6 +3819,7 @@ dependencies = [
  "miette",
  "reana",
  "reana-auth",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",

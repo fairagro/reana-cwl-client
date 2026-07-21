@@ -1,6 +1,6 @@
 use crate::client;
 use miette::IntoDiagnostic;
-use reana::api;
+use reana::api::{self};
 use tracing::info;
 
 pub mod workflows;
