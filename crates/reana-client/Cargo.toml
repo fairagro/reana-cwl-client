@@ -1,5 +1,5 @@
 [package]
-name = "reana-client"
+name = "reana-cwl"
 version.workspace = true
 edition.workspace = true
 repository.workspace = true
@@ -7,7 +7,7 @@ license.workspace = true
 authors.workspace = true
 
 [[bin]]
-name = "reana-client"
+name = "reana-cwl"
 path = "main.rs"
 
 [lib]

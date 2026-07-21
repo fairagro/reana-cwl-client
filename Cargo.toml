@@ -20,11 +20,11 @@ async-trait = "0.1.89"
 reqwest = { "version" = "0.13.4", features = ["json", "query", "rustls"] }
 url = "2.5.8"
 chrono = { version = "0.4.45", features = ["serde"] }
-serde = { version = "1.0.228", features = ["derive"] }
-tokio = { version = "1.52.4", features = ["full"] }
+serde = { version = "1.0.229", features = ["derive"] }
+tokio = { version = "1.53.1", features = ["full"] }
 commonwl = { version = "0.8.3", features = ["engine"] }
-serde_json = "1.0.150"
-thiserror = "2.0.18"
+serde_json = "1.0.151"
+thiserror = "2.0.19"
 pathdiff = "0.2.3"
 miette = "7.6.0"
 tracing = "0.1.44"

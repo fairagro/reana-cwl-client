@@ -1,6 +1,6 @@
 use clap::Parser;
 use miette::IntoDiagnostic;
-use reana_client::cli::{Cli, handle_command_args};
+use reana_cwl::cli::{Cli, handle_command_args};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
