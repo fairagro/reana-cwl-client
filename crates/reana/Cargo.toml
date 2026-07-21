@@ -7,7 +7,7 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-reana-auth = { version = "0.0.1", path = "../reana-auth" }
+reana-auth = { version = "0.1.0", path = "../reana-auth" }
 url.workspace = true
 reqwest.workspace = true
 chrono.workspace = true

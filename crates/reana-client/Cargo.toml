@@ -16,8 +16,8 @@ path = "lib.rs"
 [dependencies]
 clap = { version = "4.6.1", features = ["derive"] }
 dotenvy = "0.15.7"
-reana = { version = "0.0.1", path = "../reana" }
-reana-auth = { version = "0.0.1", path = "../reana-auth" }
+reana = { version = "0.1.0", path = "../reana" }
+reana-auth = { version = "0.1.0", path = "../reana-auth" }
 miette = { workspace = true, features = ["fancy"] }
 serde_json.workspace = true
 url.workspace = true
