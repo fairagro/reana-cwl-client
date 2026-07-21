@@ -1,9 +1,19 @@
 use crate::{
     api::{
-        self, client::ReanaClient, response::{WorkflowListResponse, WorkflowLogsResponse, WorkflowSpecificationResponse, WorkflowWorkspaceResponse},
-    }, error::ClientResult, io::{get_workflow_inputs, get_workflow_outputs}, models::workflows::{WorkflowJson, WorkflowSpecification},
+        self,
+        client::ReanaClient,
+        response::{
+            WorkflowListResponse, WorkflowLogsResponse, WorkflowSpecificationResponse,
+            WorkflowWorkspaceResponse,
+        },
+    },
+    error::ClientResult,
+    io::{get_workflow_inputs, get_workflow_outputs},
+    models::workflows::{WorkflowJson, WorkflowSpecification},
+    wrap_tools,
 };
 use commonwl::{
+    documents::CWLDocument,
     engine::load_input_file_from_file,
     load_cwl_file,
     packed::{PackedCWL, pack_cwl},
@@ -32,8 +42,13 @@ pub async fn create(
     working_directory: &Path,
 ) -> ClientResult<(String, WorkflowJson)> {
     let doc = load_cwl_file(cwl_file, true)?;
+    let doc = match doc {
+        CWLDocument::CommandLineTool(_) | CWLDocument::ExpressionTool(_) => wrap_tools(doc),
+        _ => doc,
+    };
     let workflow_id = "#main";
     let graph = pack_cwl(&doc, cwl_file, Some(workflow_id))?;
+    
     let packed = PackedCWL {
         graph,
         cwl_version: doc.cwl_version().cloned(),
