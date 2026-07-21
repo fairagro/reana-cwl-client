@@ -7,6 +7,9 @@ use url::Url;
 pub mod cli;
 pub mod commands;
 
+/// Returns an REANA API Client based on environment variables
+/// # Errors
+/// Returns Error if the given URL is invalid
 pub fn client() -> miette::Result<Arc<ReanaClient>> {
     let token = env::var("REANA_TOKEN").into_diagnostic()?;
     let url = env::var("REANA_URL").into_diagnostic()?;

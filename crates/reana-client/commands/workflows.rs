@@ -7,6 +7,9 @@ use crate::{
 use miette::IntoDiagnostic;
 use reana::client;
 
+/// Creates and runs
+/// # Errors
+/// Returns Error if the request fails
 pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     let client = client()?;
     let working_directory = env::current_dir().into_diagnostic()?;
@@ -33,6 +36,9 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     Ok(())
 }
 
+/// Creates a Workfklow
+/// # Errors
+/// Returns Error if the request fails
 pub async fn create(args: WorkflowArgs) -> miette::Result<()> {
     let client = client()?;
     let working_directory = env::current_dir().into_diagnostic()?;
@@ -51,6 +57,9 @@ pub async fn create(args: WorkflowArgs) -> miette::Result<()> {
     Ok(())
 }
 
+/// Starts a Workfklow
+/// # Errors
+/// Returns Error if the request fails
 pub async fn start(args: WorkflowIdArgs) -> miette::Result<()> {
     let client = client()?;
 
@@ -59,6 +68,9 @@ pub async fn start(args: WorkflowIdArgs) -> miette::Result<()> {
     Ok(())
 }
 
+/// Downlaods a file from a workspace
+/// # Errors
+/// Returns Error if the request fails
 pub async fn download(args: DownloadArgs) -> miette::Result<()> {
     let client = client()?;
     let working_directory = env::current_dir().into_diagnostic()?;
@@ -74,6 +86,9 @@ pub async fn download(args: DownloadArgs) -> miette::Result<()> {
     Ok(())
 }
 
+/// Uploads a file to a workspace
+/// # Errors
+/// Returns Error if the request fails
 pub async fn upload(args: UploadArgs) -> miette::Result<()> {
     let client = client()?;
     let working_directory = env::current_dir().into_diagnostic()?;
@@ -89,6 +104,9 @@ pub async fn upload(args: UploadArgs) -> miette::Result<()> {
     Ok(())
 }
 
+/// Requests the status of a workflow
+/// # Errors
+/// Returns Error if the request fails
 pub async fn status(args: WorkflowIdArgs) -> miette::Result<()> {
     let client = client()?;
 

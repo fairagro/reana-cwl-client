@@ -18,7 +18,7 @@ pub async fn ping(reana: Arc<ReanaClient>) -> APIResult<StatusCode> {
     if let Err(err) = response.error_for_status_ref() {
         report(response).await;
         return Err(err.into());
-    };
+    }
 
     Ok(response.status())
 }

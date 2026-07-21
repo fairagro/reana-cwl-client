@@ -23,6 +23,7 @@ pub struct ReanaAccessToken {
 }
 
 impl ReanaAccessToken {
+    #[must_use]
     pub fn new(token: String) -> Self {
         Self { token }
     }

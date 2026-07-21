@@ -34,7 +34,7 @@ pub(crate) fn get_workflow_inputs(
     let flattened_inputs = flatten_inputs(&cwl_inputs);
 
     let (files, directories): (Vec<_>, Vec<_>) =
-        flattened_inputs.into_iter().partition(|fod| fod.is_file());
+        flattened_inputs.into_iter().partition(commonwl::files::FileOrDirectory::is_file);
 
     let files = files
         .iter()
@@ -59,7 +59,7 @@ pub(crate) fn get_workflow_outputs(
     let Some(CWLDocument::Workflow(workflow)) = packed
         .graph
         .iter()
-        .find(|i| i.get_id().map(|id| id == workflow_id).unwrap_or(false))
+        .find(|i| i.get_id().is_some_and(|id| id == workflow_id))
     else {
         return Err(ClientError::Guard("Could not find main entity workflow"));
     };
@@ -70,14 +70,14 @@ pub(crate) fn get_workflow_outputs(
             && let Some(source) = &out.output_source
         {
             for item in source.as_many() {
-                let Some((step_id, output_id)) = item.rsplit_once("/") else {
+                let Some((step_id, output_id)) = item.rsplit_once('/') else {
                     continue;
                 };
 
                 let Some(step) = workflow
                     .steps
                     .iter()
-                    .find(|i| i.get_id().map(|id| id == step_id).unwrap_or(false))
+                    .find(|i| i.get_id().is_some_and(|id| id == step_id))
                 else {
                     error!("Could not retrieve step '{step_id}'");
                     continue;
@@ -91,7 +91,7 @@ pub(crate) fn get_workflow_outputs(
                 let Some(tool_doc) = packed
                     .graph
                     .iter()
-                    .find(|d| d.get_id().map(|id| id == tool_id).unwrap_or(false))
+                    .find(|d| d.get_id().is_some_and(|id| id == tool_id))
                 else {
                     error!("Could not find tool '{tool_id}'");
                     continue;
@@ -152,12 +152,12 @@ fn relativize_fod(fod: &mut FileOrDirectory, cwd: &Path) -> ClientResult<()> {
             FileOrDirectory::File(file) => {
                 *file = File::builder()
                     .location(rel.to_string_lossy().into_owned())
-                    .build()
+                    .build();
             }
             FileOrDirectory::Directory(directory) => {
                 *directory = Directory::builder()
                     .location(rel.to_string_lossy().into_owned())
-                    .build()
+                    .build();
             }
         }
     }

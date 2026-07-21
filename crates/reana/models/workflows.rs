@@ -11,6 +11,7 @@ pub struct WorkflowJson {
 }
 
 impl WorkflowJson {
+    #[must_use]
     pub fn new(
         reana_version: String,
         workflow: WorkflowSpecification,
