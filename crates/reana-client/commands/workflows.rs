@@ -33,6 +33,24 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     Ok(())
 }
 
+pub async fn create(args: WorkflowArgs) -> miette::Result<()> {
+    let client = client()?;
+    let working_directory = env::current_dir().into_diagnostic()?;
+
+    //create workspace
+    client::create(
+        client.clone(),
+        args.name.as_deref().unwrap_or("default"),
+        &args.cwlfile,
+        &args.jobfile,
+        &working_directory,
+    )
+    .await
+    .into_diagnostic()?;
+
+    Ok(())
+}
+
 pub async fn start(args: WorkflowIdArgs) -> miette::Result<()> {
     let client = client()?;
 
