@@ -94,6 +94,7 @@ pub fn wrap_tools(doc: CWLDocument) -> CWLDocument {
 
     CWLDocument::Workflow(
         Workflow::builder()
+            .cwl_version("v1.2")
             .inputs(inputs)
             .steps(vec![step])
             .outputs(outputs)
