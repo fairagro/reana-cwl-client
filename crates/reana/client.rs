@@ -50,6 +50,12 @@ pub async fn create(
     Ok((res.workflow_name, workflow))
 }
 
+pub async fn start(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
+    let res = api::workflows::start(client, workflow_id).await?;
+    info!("[{}] {}", res.workflow_name, res.message);
+    Ok(())
+}
+
 pub async fn upload_file(
     client: Arc<ReanaClient>,
     workflow_id: &str,
@@ -58,13 +64,14 @@ pub async fn upload_file(
 ) -> ClientResult<()> {
     let res =
         api::workflows::upload_file(client.clone(), workflow_id, file, working_directory).await?;
-    info!("[{}] {}", workflow_id, res.message);
+    info!("[{workflow_id}] {}", res.message);
 
     Ok(())
 }
 
-pub async fn start(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
-    let res = api::workflows::start(client, workflow_id).await?;
-    info!("[{}] {}", res.workflow_name, res.message);
+pub async fn get_status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
+    let res = api::workflows::status(client.clone(), workflow_id).await?;
+    info!("[{workflow_id}] {:?}", res.status);
+
     Ok(())
 }

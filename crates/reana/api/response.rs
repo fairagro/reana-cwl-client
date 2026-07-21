@@ -73,7 +73,7 @@ pub struct WorkflowStatusResponse {
     pub id: String,
     pub created: chrono::NaiveDateTime,
     //logs mising
-    pub workflow_name: String,
+    pub name: String,
     pub status: WorkflowStatus,
     pub user: String,
     pub progress: WorkflowProgress,

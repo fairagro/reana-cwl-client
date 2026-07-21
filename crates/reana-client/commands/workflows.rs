@@ -1,6 +1,9 @@
 use std::env;
 
-use crate::{cli::WorkflowArgs, client};
+use crate::{
+    cli::{WorkflowArgs, WorkflowIdArgs},
+    client,
+};
 use miette::IntoDiagnostic;
 use reana::client;
 
@@ -26,6 +29,13 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
 
     //start
     client::start(client.clone(), &workflow_id).await?;
+
+    Ok(())
+}
+
+pub async fn status(args: WorkflowIdArgs) -> miette::Result<()> {
+    let client = client()?;
+    client::get_status(client, &args.workflow_name_or_id).await?;
 
     Ok(())
 }

@@ -11,15 +11,16 @@ pub struct Cli {
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Start(WorkflowArgs),
+    Status(WorkflowIdArgs),
     Ping,
 }
 
 pub async fn handle_command_args(args: Cli) -> miette::Result<()> {
     match args.command {
-        Commands::Start(args) => commands::workflows::create_and_run_workflow(args).await?,
-        Commands::Ping => commands::ping().await?,
+        Commands::Start(args) => commands::workflows::create_and_run_workflow(args).await,
+        Commands::Status(args) => commands::workflows::status(args).await,
+        Commands::Ping => commands::ping().await,
     }
-    Ok(())
 }
 
 #[derive(Args, Debug)]
@@ -28,4 +29,9 @@ pub struct WorkflowArgs {
     pub name: Option<String>,
     pub cwlfile: PathBuf,
     pub jobfile: PathBuf,
+}
+
+#[derive(Args, Debug)]
+pub struct WorkflowIdArgs {
+    pub workflow_name_or_id: String,
 }
