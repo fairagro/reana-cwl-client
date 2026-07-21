@@ -11,6 +11,10 @@ pub mod error;
 pub mod io;
 pub mod models;
 
+/// As REANA does not support Tools we wrap Tools into single step workflows
+/// # Panics
+/// IDs should be set, so should never panic on unwrap
+#[must_use]
 pub fn wrap_tools(doc: CWLDocument) -> CWLDocument {
     let inputs: Vec<WorkflowInputParameter> = doc
         .get_inputs()
@@ -49,7 +53,7 @@ pub fn wrap_tools(doc: CWLDocument) -> CWLDocument {
         .out(
             output_ids
                 .iter()
-                .map(|o| StringOrWorkflowStepOutput::String(o.to_string()))
+                .map(|o| StringOrWorkflowStepOutput::String(o.clone()))
                 .collect(),
         )
         .build();
