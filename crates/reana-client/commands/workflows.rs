@@ -138,7 +138,7 @@ pub async fn list() -> miette::Result<()> {
 
     let res = client::list(client).await?;
     for item in res.items {
-        info!("{}:\t{:?}", item.name, item.status.unwrap())
+        info!("{}:\t{:?}", item.name, item.status.unwrap_or_default());
     }
     Ok(())
 }
