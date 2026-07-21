@@ -16,7 +16,7 @@ pub enum Commands {
 
 pub async fn handle_command_args(args: Cli) -> miette::Result<()> {
     match args.command {
-        Commands::Start(args) => commands::workflows::create_workflow(args).await?,
+        Commands::Start(args) => commands::workflows::create_and_run_workflow(args).await?,
         Commands::Ping => commands::ping().await?,
     }
     Ok(())
