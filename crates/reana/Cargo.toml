@@ -22,5 +22,10 @@ anyhow = "1.0.103"
 tracing.workspace = true
 dunce.workspace = true
 
+[dev-dependencies]
+mockito = "0.31.0"
+tempfile = "3.9.0"
+async-trait.workspace = true
+
 [lib]
 path = "lib.rs"

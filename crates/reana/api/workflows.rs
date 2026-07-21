@@ -245,3 +245,324 @@ pub async fn specification(
 
     Ok(json)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::api::response::WorkflowStatus;
+    use crate::models::workflows::{WorkflowInputs, WorkflowOutputs, WorkflowSpecification};
+    use async_trait::async_trait;
+    use commonwl::packed::PackedCWL;
+    use mockito::{Matcher, mock};
+    use reana_auth::TokenProvider;
+    use serde_json::json;
+    use std::{collections::HashMap, sync::Arc};
+    use tempfile::tempdir;
+    use url::Url;
+
+    struct StaticTokenProvider(String);
+
+    #[async_trait]
+    impl TokenProvider for StaticTokenProvider {
+        async fn get_token(&self) -> Result<String, reana_auth::AuthError> {
+            Ok(self.0.clone())
+        }
+    }
+
+    fn make_client(base_url: &str) -> Arc<ReanaClient> {
+        let url = Url::parse(base_url).expect("valid test base URL");
+        Arc::new(ReanaClient::new(
+            url,
+            Arc::new(StaticTokenProvider("test-token".to_string())),
+        ))
+    }
+
+    fn test_workflow_json() -> WorkflowJson {
+        WorkflowJson {
+            inputs: WorkflowInputs {
+                directories: vec![],
+                files: vec![],
+                parameters: HashMap::new(),
+            },
+            outputs: WorkflowOutputs { files: vec![] },
+            version: "0.9.4".to_string(),
+            workflow: WorkflowSpecification {
+                file: "workflow.cwl".to_string(),
+                specification: PackedCWL::default(),
+                r#type: "cwl".to_string(),
+            },
+        }
+    }
+
+    #[tokio::test]
+    async fn test_workflow_list() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let server_mock = mock("GET", "/workflows")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                json!({
+                    "has_next": false,
+                    "has_prev": false,
+                    "items": [],
+                    "page": 1,
+                    "total": 0,
+                    "user_has_workflows": false
+                })
+                .to_string(),
+            )
+            .create();
+
+        let response = list(client.clone()).await?;
+
+        server_mock.assert();
+        assert!(!response.has_next);
+        assert_eq!(response.items.len(), 0);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_create_workflow() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let server_mock = mock("POST", "/workflows")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .match_query(Matcher::UrlEncoded(
+                "workflow_name".into(),
+                "test-workflow".into(),
+            ))
+            .match_header("content-type", "application/json")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                json!({
+                    "workflow_id": "1",
+                    "workflow_name": "test-workflow",
+                    "message": "created"
+                })
+                .to_string(),
+            )
+            .create();
+
+        let workflow = test_workflow_json();
+        let response = create(client.clone(), &workflow, Some("test-workflow")).await?;
+
+        server_mock.assert();
+        assert_eq!(response.workflow_name, "test-workflow");
+        assert_eq!(response.message, "created");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_start_workflow() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let server_mock = mock("POST", "/workflows/test-workflow/start")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                json!({
+                    "workflow_id": "1",
+                    "workflow_name": "test-workflow",
+                    "message": "started",
+                    "run_number": "42",
+                    "user": "tester",
+                    "status": "running"
+                })
+                .to_string(),
+            )
+            .create();
+
+        let response = start(client.clone(), "test-workflow").await?;
+
+        server_mock.assert();
+        assert_eq!(response.workflow_name, "test-workflow");
+        assert_eq!(response.status, WorkflowStatus::Running);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_get_status() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let server_mock = mock("GET", "/workflows/test-workflow/status")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                json!({
+                    "id": "1",
+                    "created": "2024-01-01T00:00:00",
+                    "name": "test-workflow",
+                    "status": "running",
+                    "user": "tester",
+                    "progress": {
+                        "current_command": null,
+                        "current_step_name": null,
+                        "finished": { "job_ids": [], "total": 0 },
+                        "failed": { "job_ids": [], "total": 0 },
+                        "running": { "job_ids": [], "total": 0 },
+                        "total": { "job_ids": [], "total": 0 }
+                    }
+                })
+                .to_string(),
+            )
+            .create();
+
+        let response = status(client.clone(), "test-workflow").await?;
+
+        server_mock.assert();
+        assert_eq!(response.status, WorkflowStatus::Running);
+        assert_eq!(response.name, "test-workflow");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_get_workspace() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let server_mock = mock("GET", "/workflows/test-workflow/workspace")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(
+                json!({
+                    "has_next": false,
+                    "has_prev": false,
+                    "items": [
+                        {
+                            "name": "output.txt",
+                            "size": { "human_readable": "1B", "raw": 1 },
+                            "last_modified": "2024-01-01T00:00:00"
+                        }
+                    ],
+                    "page": 1,
+                    "total": 1
+                })
+                .to_string(),
+            )
+            .create();
+
+        let response = workspace(client.clone(), "test-workflow").await?;
+
+        server_mock.assert();
+        assert_eq!(response.items.len(), 1);
+        assert_eq!(response.items[0].name, "output.txt");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_get_specification() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let response_body = json!({
+            "version": "0.9.4",
+            "workflow": {
+                "file": "workflow.cwl",
+                "specification": { "$graph": [], "cwlVersion": null },
+                "type": "cwl"
+            },
+            "inputs": { "directories": [], "files": [], "parameters": {} },
+            "outputs": { "files": [] }
+        });
+
+        let server_mock = mock("GET", "/workflows/test-workflow/specification")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(response_body.to_string())
+            .create();
+
+        let response = specification(client.clone(), "test-workflow").await?;
+
+        server_mock.assert();
+        assert_eq!(response.version, "0.9.4");
+        assert_eq!(response.workflow.file, "workflow.cwl");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_upload() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let temp_dir = tempdir()?;
+        let file_path = temp_dir.path().join("hello.txt");
+        tokio::fs::write(&file_path, b"hello world").await?;
+
+        let server_mock = mock("POST", "/workflows/test-workflow/workspace")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .match_query(Matcher::UrlEncoded("file_name".into(), "hello.txt".into()))
+            .match_header("content-type", "application/octet-stream")
+            .match_body("hello world")
+            .with_status(200)
+            .with_header("content-type", "application/json")
+            .with_body(r#"{"message":"uploaded"}"#)
+            .create();
+
+        let response =
+            upload_file(client.clone(), "test-workflow", &file_path, temp_dir.path()).await?;
+
+        server_mock.assert();
+        assert_eq!(response.message, "uploaded");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_download() -> Result<(), Box<dyn std::error::Error>> {
+        let server_url = &mockito::server_url();
+        let client = make_client(server_url);
+
+        let temp_dir = tempdir()?;
+        let file_name = "output.txt";
+        let expected_content = b"downloaded content";
+
+        let server_mock = mock("GET", "/workflows/test-workflow/workspace/output.txt")
+            .match_query(Matcher::UrlEncoded(
+                "access_token".into(),
+                "test-token".into(),
+            ))
+            .with_status(200)
+            .with_body(expected_content.as_slice())
+            .create();
+
+        let output_path =
+            download_file(client.clone(), "test-workflow", file_name, temp_dir.path()).await?;
+
+        server_mock.assert();
+        assert_eq!(output_path, temp_dir.path().join(file_name));
+        let actual = tokio::fs::read(&output_path).await?;
+        assert_eq!(actual, expected_content);
+        Ok(())
+    }
+}
