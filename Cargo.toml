@@ -12,6 +12,7 @@ authors = [
     "Antonia Leidel",
     "Harald von Waldow",
     "Xaver Stiensmeier",
+    "FAIRagro"
 ]
 
 [workspace.dependencies]
