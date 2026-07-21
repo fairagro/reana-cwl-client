@@ -172,7 +172,7 @@ pub async fn upload_file(
 pub async fn download_file(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
-    file_name: &String,
+    file_name: &str,
     output_folder: &Path,
 ) -> APIResult<PathBuf> {
     let request = reana
@@ -191,6 +191,7 @@ pub async fn download_file(
     let content = response.bytes().await?;
 
     let output_path = output_folder.join(file_name);
+    fs::create_dir_all(&output_path.parent().unwrap()).await?;
     let mut file = File::create(&output_path).await?;
     file.write_all(&content).await?;
 

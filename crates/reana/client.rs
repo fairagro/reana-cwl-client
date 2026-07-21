@@ -62,10 +62,21 @@ pub async fn upload_file(
     file: &Path,
     working_directory: &Path,
 ) -> ClientResult<()> {
-    let res =
-        api::workflows::upload_file(client.clone(), workflow_id, file, working_directory).await?;
+    let res = api::workflows::upload_file(client, workflow_id, file, working_directory).await?;
     info!("[{workflow_id}] {}", res.message);
 
+    Ok(())
+}
+
+pub async fn download_file(
+    client: Arc<ReanaClient>,
+    workflow_id: &str,
+    filename: &str,
+    working_directory: &Path,
+) -> ClientResult<()> {
+    let res =
+        api::workflows::download_file(client, workflow_id, filename, working_directory).await?;
+    info!("[{workflow_id}] download of {filename} sucessfully. {res:?}");
     Ok(())
 }
 
