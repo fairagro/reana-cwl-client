@@ -33,6 +33,14 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     Ok(())
 }
 
+pub async fn start(args: WorkflowIdArgs) -> miette::Result<()> {
+    let client = client()?;
+
+    client::start(client, &args.workflow_name_or_id).await?;
+
+    Ok(())
+}
+
 pub async fn download(args: DownloadArgs) -> miette::Result<()> {
     let client = client()?;
     let working_directory = env::current_dir().into_diagnostic()?;

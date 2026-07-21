@@ -10,7 +10,8 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    Start(WorkflowArgs),
+    Run(WorkflowArgs),
+    Start(WorkflowIdArgs),
     Status(WorkflowIdArgs),
     Upload(UploadArgs),
     Download(DownloadArgs),
@@ -19,7 +20,8 @@ pub enum Commands {
 
 pub async fn handle_command_args(args: Cli) -> miette::Result<()> {
     match args.command {
-        Commands::Start(args) => commands::workflows::create_and_run_workflow(args).await,
+        Commands::Run(args) => commands::workflows::create_and_run_workflow(args).await,
+        Commands::Start(args) => commands::workflows::start(args).await,
         Commands::Status(args) => commands::workflows::status(args).await,
         Commands::Upload(args) => commands::workflows::upload(args).await,
         Commands::Download(args) => commands::workflows::download(args).await,
