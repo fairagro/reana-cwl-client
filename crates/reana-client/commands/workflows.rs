@@ -153,7 +153,7 @@ fn print_job_header(job_id: &str, job: &JobLog) {
         "finished" => job.status.green().to_string(),
         "failed" => job.status.red().to_string(),
         "running" => job.status.yellow().to_string(),
-        _ => job.status.to_string(),
+        _ => job.status.clone(),
     };
 
     println!(
