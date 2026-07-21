@@ -23,7 +23,7 @@ tracing.workspace = true
 dunce.workspace = true
 
 [dev-dependencies]
-mockito = "0.31.0"
+mockito = "1.7.2"
 tempfile = "3.9.0"
 async-trait.workspace = true
 
