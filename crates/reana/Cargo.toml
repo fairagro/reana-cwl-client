@@ -1,5 +1,6 @@
 [package]
 name = "reana"
+description = "Library for the interaction of CWL and REANA Servers"
 version.workspace = true
 edition.workspace = true
 repository.workspace = true

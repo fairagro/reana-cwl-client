@@ -1,5 +1,6 @@
 [package]
 name = "reana-auth"
+description = "Authprovider for REANA Servers"
 version.workspace = true
 edition.workspace = true
 repository.workspace = true
