@@ -21,20 +21,20 @@ use tracing::error;
 use url::Url;
 
 pub(crate) fn get_workflow_inputs(
-    doc: CWLDocument,
-    job_inputs: InputObject,
+    doc: &CWLDocument,
+    job_inputs: &InputObject,
     base_path: &Path,
     working_directory: &Path,
 ) -> ClientResult<WorkflowInputs> {
-    let mut cwl_inputs =
-        collect_inputs(&doc, &job_inputs.inputs, base_path, base_path, None, None)?;
+    let mut cwl_inputs = collect_inputs(doc, &job_inputs.inputs, base_path, base_path, None, None)?;
 
     relativize_inputs(&mut cwl_inputs, working_directory)?;
 
     let flattened_inputs = flatten_inputs(&cwl_inputs);
 
-    let (files, directories): (Vec<_>, Vec<_>) =
-        flattened_inputs.into_iter().partition(commonwl::files::FileOrDirectory::is_file);
+    let (files, directories): (Vec<_>, Vec<_>) = flattened_inputs
+        .into_iter()
+        .partition(commonwl::files::FileOrDirectory::is_file);
 
     let files = files
         .iter()
@@ -220,8 +220,7 @@ fn is_file_like(t: &CommandOutputType) -> bool {
             },
             _ => false,
         },
-        CommandOutputType::String(_) => false,
-        _ => false,
+        CommandOutputType::String(_) | CommandOutputType::CWLType(_) => false,
     }
 }
 

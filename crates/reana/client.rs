@@ -13,10 +13,18 @@ use reqwest::StatusCode;
 use std::{path::Path, sync::Arc};
 use tracing::info;
 
+/// Sends a ping request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
 pub async fn ping(client: Arc<ReanaClient>) -> ClientResult<StatusCode> {
     Ok(api::ping(client).await?)
 }
 
+/// Sends a create request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails, a given file does not exist or the CWL fails to pack
+/// # Panics
+/// Never
 pub async fn create(
     client: Arc<ReanaClient>,
     name: &str,
@@ -39,7 +47,7 @@ pub async fn create(
 
     let base_path = cwl_file.parent().unwrap();
     let job_inputs = load_input_file_from_file(job_file, base_path)?;
-    let inputs = get_workflow_inputs(doc, job_inputs, base_path, working_directory)?;
+    let inputs = get_workflow_inputs(&doc, &job_inputs, base_path, working_directory)?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);
@@ -50,12 +58,18 @@ pub async fn create(
     Ok((res.workflow_name, workflow))
 }
 
+/// Sends a start request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
 pub async fn start(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
     let res = api::workflows::start(client, workflow_id).await?;
     info!("[{}] {}", res.workflow_name, res.message);
     Ok(())
 }
 
+/// Sends a upload request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails or the file does not exist
 pub async fn upload_file(
     client: Arc<ReanaClient>,
     workflow_id: &str,
@@ -68,6 +82,9 @@ pub async fn upload_file(
     Ok(())
 }
 
+/// Sends a download request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails or the file does not exist or writing locally fails
 pub async fn download_file(
     client: Arc<ReanaClient>,
     workflow_id: &str,
@@ -80,6 +97,9 @@ pub async fn download_file(
     Ok(())
 }
 
+/// Sends a status request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
 pub async fn get_status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
     let res = api::workflows::status(client.clone(), workflow_id).await?;
     info!("[{workflow_id}] {:?}", res.status);

@@ -19,6 +19,9 @@ pub enum Commands {
     Ping,
 }
 
+/// Handles the subcommands
+/// # Errors
+/// Returns error if a command errors
 pub async fn handle_command_args(args: Cli) -> miette::Result<()> {
     match args.command {
         Commands::Run(args) => commands::workflows::create_and_run_workflow(args).await,

@@ -22,6 +22,9 @@ use tokio::{
 };
 use tracing::debug;
 
+/// Sends a list Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn list(reana: Arc<ReanaClient>) -> APIResult<WorkflowListResponse> {
     let request = reana
         .build_request(reqwest::Method::GET, "workflows")
@@ -39,6 +42,9 @@ pub async fn list(reana: Arc<ReanaClient>) -> APIResult<WorkflowListResponse> {
     Ok(workflows)
 }
 
+/// Sends a create Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn create(
     reana: Arc<ReanaClient>,
     workflow: &WorkflowJson,
@@ -65,6 +71,9 @@ pub async fn create(
     Ok(json)
 }
 
+/// Sends a start Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn start(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
@@ -88,6 +97,9 @@ pub async fn start(
     Ok(json)
 }
 
+/// Sends a status Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn status(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
@@ -110,6 +122,9 @@ pub async fn status(
     Ok(json)
 }
 
+/// Sends a workspace Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn workspace(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
@@ -132,6 +147,9 @@ pub async fn workspace(
     Ok(json)
 }
 
+/// Sends a upload Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn upload_file(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
@@ -169,6 +187,11 @@ pub async fn upload_file(
     Ok(json)
 }
 
+/// Sends a download Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
+/// # Panics
+/// Parent path does not exist
 pub async fn download_file(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
@@ -198,6 +221,9 @@ pub async fn download_file(
     Ok(output_path)
 }
 
+/// Sends a specification Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn specification(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,

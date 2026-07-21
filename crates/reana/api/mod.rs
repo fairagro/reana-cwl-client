@@ -10,6 +10,9 @@ pub mod workflows;
 pub const JSON_CONTENT_TYPE: &str = "application/json";
 pub const OCTET_CONTENT_TYPE: &str = "application/octet-stream";
 
+/// Sends a Ping Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
 pub async fn ping(reana: Arc<ReanaClient>) -> APIResult<StatusCode> {
     let request = reana.build_request(Method::GET, "ping").await?;
     debug!("Request: {request:?}");
@@ -23,7 +26,7 @@ pub async fn ping(reana: Arc<ReanaClient>) -> APIResult<StatusCode> {
     Ok(response.status())
 }
 
-pub async fn report(response: Response) {
+pub(crate) async fn report(response: Response) {
     let status = response.status();
     let body = response.text().await.unwrap_or_default();
     error!("REANA request failed ({status}): {body}");

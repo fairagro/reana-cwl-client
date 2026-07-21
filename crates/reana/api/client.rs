@@ -11,6 +11,9 @@ pub struct ReanaClient {
 }
 
 impl ReanaClient {
+    ///Builds a new `ReanaClient`
+    /// # Panics
+    /// Panics if the client fails to build
     pub fn new(mut base_url: Url, token_provider: Arc<dyn TokenProvider>) -> Self {
         if !base_url.path().ends_with('/') {
             base_url.set_path(&format!("{}/", base_url.path()));
