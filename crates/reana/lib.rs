@@ -8,7 +8,7 @@ use commonwl::{
 pub mod api;
 pub mod client;
 pub mod error;
-pub mod io;
+mod io;
 pub mod models;
 
 pub mod auth {
