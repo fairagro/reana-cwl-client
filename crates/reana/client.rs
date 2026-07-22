@@ -106,16 +106,10 @@ pub async fn start(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<
 pub async fn upload_file(
     client: Arc<ReanaClient>,
     workflow_id: &str,
-    file: &Path,
-    working_directory: &Path,
+    location: &Path,
+    desired_path: &str,
 ) -> ClientResult<()> {
-    let res = api::workflows::upload_file(
-        client,
-        workflow_id,
-        file,
-        &dunce::canonicalize(working_directory)?,
-    )
-    .await?;
+    let res = api::workflows::upload_file(client, workflow_id, location, desired_path).await?;
     info!("[{workflow_id}] {}", res.message);
 
     Ok(())

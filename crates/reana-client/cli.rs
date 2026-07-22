@@ -65,6 +65,8 @@ pub struct DownloadArgs {
 #[derive(Args, Debug)]
 pub struct UploadArgs {
     pub workflow_name_or_id: String,
-    #[arg(short = 'f', long = "filename", help = "Name of file to download")]
-    pub filename: PathBuf,
+    #[arg(short = 'f', long = "filename", help = "Remote Name of file to upload")]
+    pub filename: String,
+    #[arg(short = 'l', long = "location", help = "Location of file to download")]
+    pub location: PathBuf,
 }

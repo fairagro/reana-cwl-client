@@ -179,23 +179,9 @@ pub async fn workspace(
 pub async fn upload_file(
     reana: Arc<ReanaClient>,
     workflow_id_or_name: &str,
-    file: &Path,
-    working_dir: &Path,
+    location: &Path,
+    desired_path: &str,
 ) -> APIResult<MessageResponse> {
-    let file_name = if file.is_absolute() {
-        pathdiff::diff_paths(file, working_dir).unwrap_or(file.to_path_buf())
-    } else {
-        file.to_path_buf()
-    }
-    .to_string_lossy()
-    .into_owned();
-
-    let location = if !file.is_absolute() {
-        working_dir.join(file)
-    } else {
-        file.to_path_buf()
-    };
-    
     let content = fs::read(location).await?;
 
     let request = reana
@@ -205,7 +191,7 @@ pub async fn upload_file(
         )
         .await?
         .header(CONTENT_TYPE, OCTET_CONTENT_TYPE)
-        .query(&[("file_name", &file_name)])
+        .query(&[("file_name", desired_path)])
         .body(content);
 
     debug!("Request: {request:?}");
@@ -587,7 +573,7 @@ mod tests {
             .await;
 
         let response =
-            upload_file(client.clone(), "test-workflow", &file_path, temp_dir.path()).await?;
+            upload_file(client.clone(), "test-workflow", &file_path, "test-path").await?;
 
         server_mock.assert_async().await;
         assert_eq!(response.message, "uploaded");

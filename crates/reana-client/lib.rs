@@ -2,7 +2,7 @@ use std::{env, sync::Arc};
 
 use miette::IntoDiagnostic;
 use reana::api::client::ReanaClient;
-use reana_auth::ReanaAccessToken;
+use reana::auth::ReanaAccessToken;
 use url::Url;
 pub mod cli;
 pub mod commands;

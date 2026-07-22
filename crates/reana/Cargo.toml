@@ -11,7 +11,7 @@ categories.workspace = true
 readme = "README.md"
 
 [dependencies]
-reana-auth = { version = "0.1.0", path = "../reana-auth" }
+reana-auth = { version = "0.2.0", path = "../reana-auth" }
 url.workspace = true
 reqwest.workspace = true
 chrono.workspace = true

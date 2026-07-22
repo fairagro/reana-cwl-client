@@ -26,11 +26,12 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     .await
     .into_diagnostic()?;
 
-    let working_directory = args.jobfile.parent().unwrap();
-    dbg!(working_directory);
+    let working_directory = args.jobfile.canonicalize().unwrap();
+    let working_directory = working_directory.parent().unwrap();
     //upload files
     for item in spec.inputs.files {
-        client::upload_file(client.clone(), &workflow_id, &item, working_directory).await?;
+        let location = working_directory.join(&item);
+        client::upload_file(client.clone(), &workflow_id, &location, &item).await?;
     }
 
     //start
