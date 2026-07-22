@@ -13,6 +13,9 @@ use tracing::info;
 /// Creates and runs
 /// # Errors
 /// Returns Error if the request fails
+///
+/// # Panics
+/// if workfing dir has no parent
 pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     let client = client()?;
 
@@ -26,7 +29,7 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     .await
     .into_diagnostic()?;
 
-    let working_directory = args.jobfile.canonicalize().unwrap();
+    let working_directory = args.jobfile.canonicalize().into_diagnostic()?;
     let working_directory = working_directory.parent().unwrap();
     //upload files
     for item in spec.inputs.files {
