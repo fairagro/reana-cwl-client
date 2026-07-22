@@ -40,7 +40,10 @@ pub async fn create(
     cwl_file: &Path,
     job_file: &Path,
 ) -> ClientResult<(String, WorkflowJson)> {
-    let doc = load_cwl_file(cwl_file, true)?;
+    let cwl_file = dunce::canonicalize(cwl_file)?;
+    let job_file = dunce::canonicalize(job_file)?;
+
+    let doc = load_cwl_file(&cwl_file, true)?;
     let doc = match doc {
         CWLDocument::CommandLineTool(_) | CWLDocument::ExpressionTool(_) => wrap_tools(doc),
         _ => doc,
@@ -48,7 +51,7 @@ pub async fn create(
 
     let base_path = cwl_file.parent().unwrap();
     let job_inputs = load_input_file_from_file(job_file, base_path)?;
-    create2(client, name, cwl_file, &doc, &job_inputs).await
+    create2(client, name, &base_path, &doc, &job_inputs).await
 }
 
 /// Sends a create request to the REANA Endpoint using already processed files
