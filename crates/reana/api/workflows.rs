@@ -563,7 +563,7 @@ mod tests {
                 "access_token".into(),
                 "test-token".into(),
             ))
-            .match_query(Matcher::UrlEncoded("file_name".into(), "hello.txt".into()))
+            .match_query(Matcher::UrlEncoded("file_name".into(), "test-path".into()))
             .match_header("content-type", "application/octet-stream")
             .match_body("hello world")
             .with_status(200)

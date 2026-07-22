@@ -31,7 +31,13 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     //upload files
     for item in spec.inputs.files {
         let location = working_directory.join(&item);
-        client::upload_file(client.clone(), &workflow_id, &location, &item).await?;
+        client::upload_file(
+            client.clone(),
+            &workflow_id,
+            &location,
+            &item.to_string_lossy(),
+        )
+        .await?;
     }
 
     //start
@@ -93,13 +99,12 @@ pub async fn download(args: DownloadArgs) -> miette::Result<()> {
 /// Returns Error if the request fails
 pub async fn upload(args: UploadArgs) -> miette::Result<()> {
     let client = client()?;
-    let working_directory = env::current_dir().into_diagnostic()?;
 
     client::upload_file(
         client,
         &args.workflow_name_or_id,
+        &args.location,
         &args.filename,
-        &working_directory,
     )
     .await?;
 
