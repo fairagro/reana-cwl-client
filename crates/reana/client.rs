@@ -14,7 +14,7 @@ use crate::{
 };
 use commonwl::{
     documents::CWLDocument,
-    engine::load_input_file_from_file,
+    engine::{InputObject, load_input_file_from_file},
     load_cwl_file,
     packed::{PackedCWL, pack_cwl},
 };
@@ -29,7 +29,7 @@ pub async fn ping(client: Arc<ReanaClient>) -> ClientResult<StatusCode> {
     Ok(api::ping(client).await?)
 }
 
-/// Sends a create request to the REANA Endpoint
+/// Sends a create request to the REANA Endpoint using filepaths
 /// # Errors
 /// Returns Error if the request fails, a given file does not exist or the CWL fails to pack
 /// # Panics
@@ -45,8 +45,28 @@ pub async fn create(
         CWLDocument::CommandLineTool(_) | CWLDocument::ExpressionTool(_) => wrap_tools(doc),
         _ => doc,
     };
+
+    let base_path = cwl_file.parent().unwrap();
+    let job_inputs = load_input_file_from_file(job_file, base_path)?;
+    create2(client, name, cwl_file, &doc, &job_inputs).await
+}
+
+/// Sends a create request to the REANA Endpoint using already processed files
+/// # Errors
+/// Returns Error if the request fails, a given file does not exist or the CWL fails to pack
+/// # Panics
+/// Never
+pub async fn create2(
+    client: Arc<ReanaClient>,
+    name: &str,
+    base_path: &Path,
+    doc: &CWLDocument,
+    inputs: &InputObject,
+) -> ClientResult<(String, WorkflowJson)> {
     let workflow_id = "#main";
-    let graph = pack_cwl(&doc, cwl_file, Some(workflow_id))?;
+
+    let cwl_file = base_path.join("workflow.cwl");
+    let graph = pack_cwl(doc, &cwl_file, Some(workflow_id))?;
 
     let packed = PackedCWL {
         graph,
@@ -59,9 +79,7 @@ pub async fn create(
     };
 
     let cwd = env::current_dir()?;
-    let base_path = cwl_file.parent().unwrap();
-    let job_inputs = load_input_file_from_file(job_file, base_path)?;
-    let inputs = get_workflow_inputs(&doc, &job_inputs, base_path, &cwd)?;
+    let inputs = get_workflow_inputs(doc, inputs, base_path, &cwd)?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);
