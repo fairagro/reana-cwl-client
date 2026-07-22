@@ -11,6 +11,10 @@ pub mod error;
 pub mod io;
 pub mod models;
 
+pub mod auth {
+    pub use reana_auth::{AuthError, ReanaAccessToken, TokenProvider};
+}
+
 /// As REANA does not support Tools we wrap Tools into single step workflows
 /// # Panics
 /// IDs should be set, so should never panic on unwrap
