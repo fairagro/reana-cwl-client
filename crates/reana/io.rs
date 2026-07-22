@@ -24,11 +24,11 @@ pub(crate) fn get_workflow_inputs(
     doc: &CWLDocument,
     job_inputs: &InputObject,
     base_path: &Path,
-    working_directory: &Path,
+    cwd: &Path,
 ) -> ClientResult<WorkflowInputs> {
     let mut cwl_inputs = collect_inputs(doc, &job_inputs.inputs, base_path, base_path, None, None)?;
 
-    relativize_inputs(&mut cwl_inputs, working_directory)?;
+    relativize_inputs(&mut cwl_inputs, cwd)?;
 
     let flattened_inputs = flatten_inputs(&cwl_inputs);
 

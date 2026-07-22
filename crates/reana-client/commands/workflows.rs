@@ -23,7 +23,6 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
         args.name.as_deref().unwrap_or("default"),
         &args.cwlfile,
         &args.jobfile,
-        &working_directory,
     )
     .await
     .into_diagnostic()?;
@@ -44,7 +43,6 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
 /// Returns Error if the request fails
 pub async fn create(args: WorkflowArgs) -> miette::Result<()> {
     let client = client()?;
-    let working_directory = env::current_dir().into_diagnostic()?;
 
     //create workspace
     client::create(
@@ -52,7 +50,6 @@ pub async fn create(args: WorkflowArgs) -> miette::Result<()> {
         args.name.as_deref().unwrap_or("default"),
         &args.cwlfile,
         &args.jobfile,
-        &working_directory,
     )
     .await
     .into_diagnostic()?;

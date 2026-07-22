@@ -55,6 +55,10 @@ pub enum ClientError {
     #[diagnostic(code(reana::ClientError::Guard))]
     Guard(&'static str),
 
+    #[diagnostic(code = "io::Error")]
+    #[error("I/O Error")]
+    IO(#[from] io::Error),
+
     #[diagnostic(code = "anyhow::Error")]
     #[error("Unknown Error")]
     Unknown(#[from] anyhow::Error),

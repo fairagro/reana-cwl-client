@@ -19,7 +19,7 @@ use commonwl::{
     packed::{PackedCWL, pack_cwl},
 };
 use reqwest::StatusCode;
-use std::{path::Path, sync::Arc};
+use std::{env, path::Path, sync::Arc};
 use tracing::info;
 
 /// Sends a ping request to the REANA Endpoint
@@ -39,7 +39,6 @@ pub async fn create(
     name: &str,
     cwl_file: &Path,
     job_file: &Path,
-    working_directory: &Path,
 ) -> ClientResult<(String, WorkflowJson)> {
     let doc = load_cwl_file(cwl_file, true)?;
     let doc = match doc {
@@ -48,7 +47,7 @@ pub async fn create(
     };
     let workflow_id = "#main";
     let graph = pack_cwl(&doc, cwl_file, Some(workflow_id))?;
-    
+
     let packed = PackedCWL {
         graph,
         cwl_version: doc.cwl_version().cloned(),
@@ -59,9 +58,10 @@ pub async fn create(
         r#type: "cwl".to_string(),
     };
 
+    let cwd = env::current_dir()?;
     let base_path = cwl_file.parent().unwrap();
     let job_inputs = load_input_file_from_file(job_file, base_path)?;
-    let inputs = get_workflow_inputs(&doc, &job_inputs, base_path, working_directory)?;
+    let inputs = get_workflow_inputs(&doc, &job_inputs, base_path, &cwd)?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);
