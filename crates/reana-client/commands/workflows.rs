@@ -15,7 +15,6 @@ use tracing::info;
 /// Returns Error if the request fails
 pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     let client = client()?;
-    let working_directory = env::current_dir().into_diagnostic()?;
 
     //create workspace
     let (workflow_id, spec) = client::create(
@@ -27,9 +26,11 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     .await
     .into_diagnostic()?;
 
+    let working_directory = args.jobfile.parent().unwrap();
+    dbg!(working_directory);
     //upload files
     for item in spec.inputs.files {
-        client::upload_file(client.clone(), &workflow_id, &item, &working_directory).await?;
+        client::upload_file(client.clone(), &workflow_id, &item, working_directory).await?;
     }
 
     //start

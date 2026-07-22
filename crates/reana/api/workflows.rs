@@ -190,7 +190,13 @@ pub async fn upload_file(
     .to_string_lossy()
     .into_owned();
 
-    let content = fs::read(file).await?;
+    let location = if !file.is_absolute() {
+        working_dir.join(file)
+    } else {
+        file.to_path_buf()
+    };
+    
+    let content = fs::read(location).await?;
 
     let request = reana
         .build_request(

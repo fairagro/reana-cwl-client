@@ -43,18 +43,12 @@ pub async fn create(
     let cwl_file = dunce::canonicalize(cwl_file)?;
     let job_file = dunce::canonicalize(job_file)?;
 
-    let doc = load_cwl_file(&cwl_file, true)?;
-    let doc = match doc {
-        CWLDocument::CommandLineTool(_) | CWLDocument::ExpressionTool(_) => wrap_tools(doc),
-        _ => doc,
-    };
-
-    let base_path = cwl_file.parent().unwrap();
-    let job_inputs = load_input_file_from_file(job_file, base_path)?;
-    create2(client, name, &base_path, &doc, &job_inputs).await
+    let base_path = job_file.parent().unwrap();
+    let job_inputs = load_input_file_from_file(&job_file, base_path)?;
+    create2(client, name, &cwl_file, &job_inputs).await
 }
 
-/// Sends a create request to the REANA Endpoint using already processed files
+/// Sends a create request to the REANA Endpoint using already loaded inputs
 /// # Errors
 /// Returns Error if the request fails, a given file does not exist or the CWL fails to pack
 /// # Panics
@@ -62,14 +56,18 @@ pub async fn create(
 pub async fn create2(
     client: Arc<ReanaClient>,
     name: &str,
-    base_path: &Path,
-    doc: &CWLDocument,
+    cwl_file: &Path,
     inputs: &InputObject,
 ) -> ClientResult<(String, WorkflowJson)> {
     let workflow_id = "#main";
 
-    let cwl_file = base_path.join("workflow.cwl");
-    let graph = pack_cwl(doc, &cwl_file, Some(workflow_id))?;
+    let doc = load_cwl_file(cwl_file, true)?;
+    let doc = match doc {
+        CWLDocument::CommandLineTool(_) | CWLDocument::ExpressionTool(_) => wrap_tools(doc),
+        _ => doc,
+    };
+
+    let graph = pack_cwl(&doc, cwl_file, Some(workflow_id))?;
 
     let packed = PackedCWL {
         graph,
@@ -82,7 +80,7 @@ pub async fn create2(
     };
 
     let cwd = env::current_dir()?;
-    let inputs = get_workflow_inputs(doc, inputs, base_path, &cwd)?;
+    let inputs = get_workflow_inputs(&doc, inputs, &cwd)?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);
@@ -111,7 +109,13 @@ pub async fn upload_file(
     file: &Path,
     working_directory: &Path,
 ) -> ClientResult<()> {
-    let res = api::workflows::upload_file(client, workflow_id, file, working_directory).await?;
+    let res = api::workflows::upload_file(
+        client,
+        workflow_id,
+        file,
+        &dunce::canonicalize(working_directory)?,
+    )
+    .await?;
     info!("[{workflow_id}] {}", res.message);
 
     Ok(())

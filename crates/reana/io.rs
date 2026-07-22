@@ -23,10 +23,9 @@ use url::Url;
 pub(crate) fn get_workflow_inputs(
     doc: &CWLDocument,
     job_inputs: &InputObject,
-    base_path: &Path,
     cwd: &Path,
 ) -> ClientResult<WorkflowInputs> {
-    let mut cwl_inputs = collect_inputs(doc, &job_inputs.inputs, base_path, base_path, None, None)?;
+    let mut cwl_inputs = collect_inputs(doc, &job_inputs.inputs, cwd, cwd, None, None)?;
 
     relativize_inputs(&mut cwl_inputs, cwd)?;
 
