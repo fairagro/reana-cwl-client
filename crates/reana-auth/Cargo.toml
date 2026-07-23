@@ -13,6 +13,7 @@ categories.workspace = true
 async-trait.workspace = true
 reqwest.workspace = true
 miette.workspace = true
+secrecy.workspace = true
 
 [lib]
 path = "lib.rs"

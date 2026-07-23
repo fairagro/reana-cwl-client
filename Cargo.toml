@@ -13,7 +13,7 @@ authors = [
     "Antonia Leidel",
     "Harald von Waldow",
     "Xaver Stiensmeier",
-    "FAIRagro"
+    "FAIRagro",
 ]
 categories = ["science"]
 
@@ -32,3 +32,5 @@ pathdiff = "0.2.3"
 miette = "7.6.0"
 tracing = "0.1.44"
 dunce = "1.0.5"
+secrecy = "0.10.3"
+anyhow = "1.0.103"

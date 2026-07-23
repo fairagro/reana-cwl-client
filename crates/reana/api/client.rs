@@ -2,6 +2,7 @@ use crate::error::APIResult;
 use reana_auth::TokenProvider;
 use reqwest::{Client, Method, RequestBuilder};
 use std::sync::Arc;
+use secrecy::ExposeSecret;
 use url::Url;
 
 pub struct ReanaClient {
@@ -43,6 +44,6 @@ impl ReanaClient {
         Ok(self
             .http_client
             .request(method, url)
-            .query(&[("access_token", &token)]))
+            .query(&[("access_token", token.expose_secret())]))
     }
 }

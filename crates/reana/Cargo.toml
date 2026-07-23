@@ -22,9 +22,10 @@ serde_json.workspace = true
 thiserror.workspace = true
 miette.workspace = true
 pathdiff.workspace = true
-anyhow = "1.0.103"
+anyhow.workspace = true
 tracing.workspace = true
 dunce.workspace = true
+secrecy.workspace = true
 
 [dev-dependencies]
 mockito = "1.7.2"
