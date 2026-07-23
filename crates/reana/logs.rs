@@ -37,7 +37,7 @@ pub fn get_log_outputs(logs: &WorkflowLogsResponse) -> ClientResult<Option<Value
     let logline = extract_json(&workflow_logs);
 
     let outputs = match logline {
-        Some(s) => serde_json::to_value(s)?,
+        Some(s) => serde_json::from_str(s)?,
         None => return Ok(None),
     };
 
