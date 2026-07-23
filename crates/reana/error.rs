@@ -59,6 +59,10 @@ pub enum ClientError {
     #[error("I/O Error")]
     IO(#[from] io::Error),
 
+    #[diagnostic(code = "serde_json::Error")]
+    #[error("Failed to parse JSON")]
+    JSON(#[from] serde_json::Error),
+
     #[diagnostic(code = "anyhow::Error")]
     #[error("Unknown Error")]
     Unknown(#[from] anyhow::Error),
