@@ -35,7 +35,7 @@ pub struct WorkflowProgressDates {
     pub run_stopped_at: Option<chrono::NaiveDateTime>,
 }
 
-#[derive(Deserialize, Debug, Default, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Default, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum WorkflowStatus {
     Created,

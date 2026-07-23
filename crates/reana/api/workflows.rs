@@ -123,6 +123,28 @@ pub async fn status(
     Ok(json)
 }
 
+/// Sends a stop Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
+pub async fn stop(reana: Arc<ReanaClient>, workflow_id_or_name: &str) -> APIResult<()> {
+    let request = reana
+        .build_request(
+            reqwest::Method::PUT,
+            &format!("workflows/{workflow_id_or_name}/status"),
+        )
+        .await?
+        .query(&[("status", "stop")]);
+
+    debug!("Request: {request:?}");
+    let response = request.send().await?;
+    if let Err(err) = response.error_for_status_ref() {
+        report(response).await;
+        return Err(err.into());
+    }
+
+    Ok(())
+}
+
 /// Sends a logs Request to the reana Enpoint
 /// # Errors
 /// Fails if building or sending the request fails

@@ -168,6 +168,16 @@ pub async fn status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult
     Ok(res.status)
 }
 
+/// Sends a status Request to the reana Enpoint
+/// # Errors
+/// Fails if building or sending the request fails
+pub async fn stop(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<()> {
+    api::workflows::stop(client.clone(), workflow_id).await?;
+    info!("[{workflow_id}] stopped",);
+
+    Ok(())
+}
+
 /// Sends a logs request to the REANA Endpoint
 /// # Errors
 /// Returns Error if the request fails
