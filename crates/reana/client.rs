@@ -59,6 +59,7 @@ pub struct CreatedWorkspace {
 }
 
 impl CreatedWorkspace {
+    #[must_use]
     pub fn new(workflow_id: &str, specification: WorkflowJson, local_workspace: &Path) -> Self {
         Self {
             workflow_id: workflow_id.to_string(),

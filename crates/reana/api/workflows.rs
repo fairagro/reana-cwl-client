@@ -274,17 +274,18 @@ mod tests {
     use commonwl::packed::PackedCWL;
     use mockito::{Matcher, Server};
     use reana_auth::TokenProvider;
+    use secrecy::{ExposeSecret, SecretString};
     use serde_json::json;
     use std::{collections::HashMap, sync::Arc};
     use tempfile::tempdir;
     use url::Url;
 
-    struct StaticTokenProvider(String);
+    struct StaticTokenProvider(SecretString);
 
     #[async_trait]
     impl TokenProvider for StaticTokenProvider {
-        async fn get_token(&self) -> Result<String, reana_auth::AuthError> {
-            Ok(self.0.clone())
+        async fn get_token(&self) -> Result<SecretString, reana_auth::AuthError> {
+            Ok(self.0.expose_secret().into())
         }
     }
 
@@ -292,7 +293,7 @@ mod tests {
         let url = Url::parse(base_url).expect("valid test base URL");
         Arc::new(ReanaClient::new(
             url,
-            Arc::new(StaticTokenProvider("test-token".to_string())),
+            Arc::new(StaticTokenProvider(SecretString::new("test-token".into()))),
         ))
     }
 
