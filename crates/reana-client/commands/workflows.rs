@@ -7,7 +7,7 @@ use crate::{
 };
 use miette::IntoDiagnostic;
 use owo_colors::OwoColorize;
-use reana::client;
+use reana::client::{self, CreatedWorkspace};
 use tracing::info;
 
 /// Creates and runs
@@ -20,7 +20,11 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     let client = client()?;
 
     //create workspace
-    let (workflow_id, spec) = client::create(
+    let CreatedWorkspace {
+        workflow_id,
+        specification,
+        local_workspace,
+    } = client::create(
         client.clone(),
         args.name.as_deref().unwrap_or("default"),
         &args.cwlfile,
@@ -29,11 +33,9 @@ pub async fn create_and_run_workflow(args: WorkflowArgs) -> miette::Result<()> {
     .await
     .into_diagnostic()?;
 
-    let working_directory = args.jobfile.canonicalize().into_diagnostic()?;
-    let working_directory = working_directory.parent().unwrap();
     //upload files
-    for item in spec.inputs.files {
-        let location = working_directory.join(&item);
+    for item in specification.inputs.files {
+        let location = local_workspace.as_path().join(&item);
         client::upload_file(
             client.clone(),
             &workflow_id,

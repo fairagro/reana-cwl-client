@@ -19,8 +19,11 @@ use commonwl::{
     packed::{PackedCWL, pack_cwl},
 };
 use reqwest::StatusCode;
-use std::{env, path::Path, sync::Arc};
-use tracing::info;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
+use tracing::{debug, info};
 
 /// Sends a ping request to the REANA Endpoint
 /// # Errors
@@ -39,13 +42,30 @@ pub async fn create(
     name: &str,
     cwl_file: &Path,
     job_file: &Path,
-) -> ClientResult<(String, WorkflowJson)> {
+) -> ClientResult<CreatedWorkspace> {
     let cwl_file = dunce::canonicalize(cwl_file)?;
     let job_file = dunce::canonicalize(job_file)?;
+    debug!("Resolved executiom pair to {cwl_file:?} and {job_file:?}");
 
-    let base_path = job_file.parent().unwrap();
+    let base_path = cwl_file.parent().unwrap();
     let job_inputs = load_input_file_from_file(&job_file, base_path)?;
     create2(client, name, &cwl_file, &job_inputs).await
+}
+
+pub struct CreatedWorkspace {
+    pub workflow_id: String,
+    pub specification: WorkflowJson,
+    pub local_workspace: PathBuf,
+}
+
+impl CreatedWorkspace {
+    pub fn new(workflow_id: &str, specification: WorkflowJson, local_workspace: &Path) -> Self {
+        Self {
+            workflow_id: workflow_id.to_string(),
+            specification,
+            local_workspace: local_workspace.to_path_buf(),
+        }
+    }
 }
 
 /// Sends a create request to the REANA Endpoint using already loaded inputs
@@ -58,7 +78,10 @@ pub async fn create2(
     name: &str,
     cwl_file: &Path,
     inputs: &InputObject,
-) -> ClientResult<(String, WorkflowJson)> {
+) -> ClientResult<CreatedWorkspace> {
+    let cwl_file = dunce::canonicalize(cwl_file)?;
+    let cwl_file = cwl_file.as_path();
+
     let workflow_id = "#main";
 
     let doc = load_cwl_file(cwl_file, true)?;
@@ -79,8 +102,8 @@ pub async fn create2(
         r#type: "cwl".to_string(),
     };
 
-    let cwd = env::current_dir()?;
-    let inputs = get_workflow_inputs(&doc, inputs, &cwd)?;
+    let specification_dir = cwl_file.parent().unwrap_or(Path::new("."));
+    let (inputs, local_workspace) = get_workflow_inputs(&doc, inputs, specification_dir)?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);
@@ -88,7 +111,11 @@ pub async fn create2(
     let res = api::workflows::create(client.clone(), &workflow, Some(name)).await?;
     info!("[{}] {}", res.workflow_name, res.message);
 
-    Ok((res.workflow_name, workflow))
+    Ok(CreatedWorkspace::new(
+        &res.workflow_name,
+        workflow,
+        &local_workspace,
+    ))
 }
 
 /// Sends a start request to the REANA Endpoint

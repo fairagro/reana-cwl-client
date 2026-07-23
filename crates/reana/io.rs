@@ -23,12 +23,41 @@ use url::Url;
 pub(crate) fn get_workflow_inputs(
     doc: &CWLDocument,
     job_inputs: &InputObject,
-    cwd: &Path,
-) -> ClientResult<WorkflowInputs> {
-    let mut cwl_inputs = collect_inputs(doc, &job_inputs.inputs, cwd, cwd, None, None)?;
+    specification_dir: &Path,
+) -> ClientResult<(WorkflowInputs, PathBuf)> {
+    //collects absolute un-canonicalized paths based on specification location.
+    let mut cwl_inputs = collect_inputs(
+        doc,
+        &job_inputs.inputs,
+        specification_dir,
+        specification_dir,
+        None,
+        None,
+    )?;
 
-    relativize_inputs(&mut cwl_inputs, cwd)?;
+    let flattened_inputs = flatten_inputs(&cwl_inputs);
 
+    //REANA needs relative paths based on a common workspace directory
+    let mut all_paths: Vec<PathBuf> = flattened_inputs
+        .iter()
+        .filter_map(|fod| fod.location())
+        .filter_map(|i| Url::parse(i).ok())
+        .filter_map(|u| StoragePath::from_url(u).as_local_path().ok())
+        .collect();
+    all_paths.push(specification_dir.to_path_buf());
+
+    let workspace_root = common_ancestor(all_paths.iter().map(PathBuf::as_path))
+        .ok_or_else(|| ClientError::Guard("Could not determine workspace root"))?;
+
+    if workspace_root.as_os_str().is_empty() || !workspace_root.is_absolute() {
+        return Err(ClientError::Guard(
+            "Computed workspace root is not an absolute path",
+        ));
+    }
+
+    relativize_inputs(&mut cwl_inputs, &workspace_root)?;
+
+    //get flattened inputs with the workspace relative paths
     let flattened_inputs = flatten_inputs(&cwl_inputs);
 
     let (files, directories): (Vec<_>, Vec<_>) = flattened_inputs
@@ -44,11 +73,14 @@ pub(crate) fn get_workflow_inputs(
         .map(location_as_path)
         .collect::<ClientResult<Vec<_>>>()?;
 
-    Ok(WorkflowInputs {
-        directories,
-        files: files.clone(),
-        parameters: cwl_inputs,
-    })
+    Ok((
+        WorkflowInputs {
+            directories,
+            files: files.clone(),
+            parameters: cwl_inputs,
+        },
+        workspace_root,
+    ))
 }
 
 pub(crate) fn get_workflow_outputs(
@@ -120,6 +152,31 @@ pub(crate) fn get_workflow_outputs(
     Ok(WorkflowOutputs {
         files: output_files,
     })
+}
+
+pub(crate) fn common_ancestor<'a>(paths: impl Iterator<Item = &'a Path>) -> Option<PathBuf> {
+    let mut result: Option<PathBuf> = None;
+    for p in paths {
+        let dir = if p.is_dir() {
+            p
+        } else {
+            p.parent().unwrap_or(p)
+        };
+        result = Some(match result {
+            None => dir.to_path_buf(),
+            Some(acc) => {
+                let acc_comps: Vec<_> = acc.components().collect();
+                let dir_comps: Vec<_> = dir.components().collect();
+                let common_len = acc_comps
+                    .iter()
+                    .zip(dir_comps.iter())
+                    .take_while(|(a, b)| a == b)
+                    .count();
+                acc_comps[..common_len].iter().collect()
+            }
+        });
+    }
+    result
 }
 
 fn location_as_path(fod: &FileOrDirectory) -> ClientResult<PathBuf> {
