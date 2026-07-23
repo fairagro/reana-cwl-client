@@ -11,7 +11,9 @@ pub async fn glob(
     id: &str,
     pattern: &str,
 ) -> anyhow::Result<Box<dyn Iterator<Item = String> + Send>> {
-    let pattern = Pattern::new(pattern)?;
+    //reana stores all in "outputs"
+    let pattern = format!("outputs/{pattern}");
+    let pattern = Pattern::new(&pattern)?;
 
     let res = crate::client::workspace(client.clone(), id).await?;
     let listing = res.items;
