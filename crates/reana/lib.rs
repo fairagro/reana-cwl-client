@@ -10,6 +10,7 @@ pub mod client;
 pub mod error;
 mod io;
 pub mod models;
+pub mod storage;
 
 pub mod auth {
     pub use reana_auth::{AuthError, ReanaAccessToken, TokenProvider};
