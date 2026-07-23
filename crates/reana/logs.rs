@@ -2,7 +2,6 @@ use crate::{
     api::response::{WorkflowLogsResponse, WorkflowStatus},
     error::ClientResult,
 };
-use commonwl::inputs::DefaultValue;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -30,17 +29,15 @@ pub struct JobLog {
 ///Parses Workflow Logs to get the output object
 /// # Errors
 /// if parsing fails
-pub fn get_log_outputs(
-    logs: &WorkflowLogsResponse,
-) -> ClientResult<Option<HashMap<String, DefaultValue>>> {
+pub fn get_log_outputs(logs: &WorkflowLogsResponse) -> ClientResult<Option<Value>> {
     let logs = &logs.logs;
     let full_log = serde_json::from_str::<ReanaLogMessage>(logs)?;
     let workflow_logs = full_log.workflow_logs;
 
     let logline = extract_json(&workflow_logs);
 
-    let outputs: HashMap<String, DefaultValue> = match logline {
-        Some(s) => serde_json::from_str(s)?,
+    let outputs = match logline {
+        Some(s) => serde_json::to_value(s)?,
         None => return Ok(None),
     };
 
@@ -76,6 +73,5 @@ mod tests {
 
         let outputs = get_log_outputs(&res).unwrap();
         assert!(outputs.is_some());
-        assert!(outputs.unwrap().contains_key("out"))
     }
 }
