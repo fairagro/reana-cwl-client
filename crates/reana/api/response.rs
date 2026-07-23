@@ -45,6 +45,7 @@ pub enum WorkflowStatus {
     Stopped,
     #[default]
     Queued,
+    Pending,
 }
 
 #[derive(Deserialize, Serialize, Debug, Default)]
