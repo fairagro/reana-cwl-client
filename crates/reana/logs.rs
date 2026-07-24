@@ -23,7 +23,7 @@ pub struct JobLog {
     pub cmd: String,
     pub status: WorkflowStatus,
     pub logs: String,
-    pub finished_at: chrono::NaiveDateTime,
+    pub finished_at: Option<chrono::NaiveDateTime>
 }
 
 ///Parses Workflow Logs to get the output object
