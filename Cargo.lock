@@ -1140,9 +1140,9 @@ dependencies = [
 
 [[package]]
 name = "commonwl"
-version = "0.8.4"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba3c79bd67e72b11017aa35b93d66fc28bd02b7a352dc407d2c0ae62ad93f9c3"
+checksum = "724e1a5e10835924bc551ce5a2d290780de017444130f922e15134cfcb254665"
 dependencies = [
  "cwl_core",
  "cwl_engine",
@@ -3779,7 +3779,7 @@ checksum = "bb1725bf0133fe4a3279e18efd6d69f952cb8356bf8b835023042e1b98d4c646"
 
 [[package]]
 name = "reana"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3804,7 +3804,7 @@ dependencies = [
 
 [[package]]
 name = "reana-auth"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "async-trait",
  "miette",
@@ -3814,7 +3814,7 @@ dependencies = [
 
 [[package]]
 name = "reana-cwl"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "clap",
  "dotenvy",
