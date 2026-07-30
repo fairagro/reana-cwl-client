@@ -122,8 +122,8 @@ pub async fn upload(args: UploadArgs) -> miette::Result<()> {
 pub async fn status(args: WorkflowIdArgs) -> miette::Result<()> {
     let client = client()?;
 
-    client::status(client, &args.workflow_name_or_id).await?;
-
+    let status = client::status(client, &args.workflow_name_or_id).await?;
+    info!("[{}] {status:?}", args.workflow_name_or_id);
     Ok(())
 }
 
