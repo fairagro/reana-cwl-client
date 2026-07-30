@@ -104,7 +104,7 @@ pub async fn create2(
     };
 
     let specification_dir = cwl_file.parent().unwrap_or(Path::new("."));
-    let (inputs, local_workspace) = get_workflow_inputs(&doc, inputs, specification_dir)?;
+    let (inputs, local_workspace) = get_workflow_inputs(&doc, inputs, specification_dir).await?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);

@@ -10,17 +10,20 @@ use commonwl::{
     inputs::DefaultValue,
     outputs::{CommandOutputParameterType, CommandOutputSchema, CommandOutputType},
     packed::PackedCWL,
-    storage::StoragePath,
+    storage::{StorageBackend, StoragePath},
     types::CWLType,
 };
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
+    sync::LazyLock,
 };
 use tracing::error;
 use url::Url;
 
-pub(crate) fn get_workflow_inputs(
+static STORAGE_BACKEND: LazyLock<StorageBackend> = LazyLock::new(StorageBackend::new);
+
+pub(crate) async fn get_workflow_inputs(
     doc: &CWLDocument,
     job_inputs: &InputObject,
     specification_dir: &Path,
@@ -33,7 +36,9 @@ pub(crate) fn get_workflow_inputs(
         specification_dir,
         None,
         None,
-    )?;
+        &STORAGE_BACKEND,
+    )
+    .await?;
 
     let flattened_inputs = flatten_inputs(&cwl_inputs);
 
