@@ -60,7 +60,7 @@ pub fn wrap_tools(doc: CWLDocument) -> CWLDocument {
             output_ids
                 .iter()
                 .map(|o| StringOrWorkflowStepOutput::String(o.clone()))
-                .collect(),
+                .collect::<Vec<_>>(),
         )
         .build();
 
