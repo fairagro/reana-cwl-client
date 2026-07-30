@@ -187,7 +187,7 @@ pub(crate) fn common_ancestor<'a>(paths: impl Iterator<Item = &'a Path>) -> Opti
 fn location_as_path(fod: &FileOrDirectory) -> ClientResult<PathBuf> {
     fod.location()
         .map(PathBuf::from)
-        .ok_or_else(|| ClientError::CWL(commonwl::Error::Guard("Missing location")))
+        .ok_or_else(|| ClientError::CWL(commonwl::Error::Guard("Missing location".to_string())))
 }
 
 #[allow(clippy::implicit_hasher)]
@@ -202,8 +202,11 @@ fn relative_location(location: &str, cwd: &Path) -> ClientResult<PathBuf> {
     let url = Url::parse(location)?;
     let local_path = StoragePath::from_url(url).as_local_path()?;
 
-    pathdiff::diff_paths(local_path, cwd)
-        .ok_or_else(|| ClientError::CWL(commonwl::Error::Guard("Failed to compute relative path")))
+    pathdiff::diff_paths(local_path, cwd).ok_or_else(|| {
+        ClientError::CWL(commonwl::Error::Guard(
+            "Failed to compute relative path".to_string(),
+        ))
+    })
 }
 
 fn relativize_fod(fod: &mut FileOrDirectory, cwd: &Path) -> ClientResult<()> {
@@ -263,7 +266,9 @@ fn relativize_json_element(v: &mut serde_json::Value, cwd: &Path) -> ClientResul
     if let Ok(mut dv) = serde_json::from_value::<DefaultValue>(v.clone()) {
         relativize_default_value(&mut dv, cwd)?;
         *v = serde_json::to_value(dv).map_err(|_| {
-            ClientError::CWL(commonwl::Error::Guard("Failed to re-serialize input"))
+            ClientError::CWL(commonwl::Error::Guard(
+                "Failed to re-serialize input".to_string(),
+            ))
         })?;
     } else {
         relativize_json_value(v, cwd)?;
