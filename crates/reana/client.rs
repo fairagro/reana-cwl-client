@@ -4,7 +4,7 @@ use crate::{
         client::ReanaClient,
         response::{
             WorkflowListResponse, WorkflowLogsResponse, WorkflowSpecificationResponse,
-            WorkflowStatus, WorkflowWorkspaceResponse,
+            WorkflowStatus, WorkflowStatusResponse, WorkflowWorkspaceResponse,
         },
     },
     error::ClientResult,
@@ -151,19 +151,30 @@ pub async fn download_file(
     workflow_id: &str,
     filename: &str,
     working_directory: &Path,
-) -> ClientResult<()> {
+) -> ClientResult<PathBuf> {
     let res =
         api::workflows::download_file(client, workflow_id, filename, working_directory).await?;
     info!("[{workflow_id}] download of {filename} sucessfully. {res:?}");
-    Ok(())
+    Ok(res)
 }
 
 /// Sends a status request to the REANA Endpoint
 /// # Errors
 /// Returns Error if the request fails
 pub async fn status(client: Arc<ReanaClient>, workflow_id: &str) -> ClientResult<WorkflowStatus> {
-    let res = api::workflows::status(client.clone(), workflow_id).await?;
+    let res = status_full(client.clone(), workflow_id).await?;
     Ok(res.status)
+}
+
+/// Sends a status request to the REANA Endpoint
+/// # Errors
+/// Returns Error if the request fails
+pub async fn status_full(
+    client: Arc<ReanaClient>,
+    workflow_id: &str,
+) -> ClientResult<WorkflowStatusResponse> {
+    let res = api::workflows::status(client.clone(), workflow_id).await?;
+    Ok(res)
 }
 
 /// Sends a status Request to the reana Enpoint
