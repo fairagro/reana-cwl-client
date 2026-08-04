@@ -51,6 +51,10 @@ pub enum ClientError {
     #[error("Could not handle CWL")]
     CWL(#[from] commonwl::Error),
 
+    #[diagnostic(code = "commonwl::engine::RunnerError")]
+    #[error("Could not handle CWL")]
+    CWLRunner(#[from] commonwl::engine::RunnerError),
+
     #[error("Guard clause failed")]
     #[diagnostic(code(reana::ClientError::Guard))]
     Guard(&'static str),
