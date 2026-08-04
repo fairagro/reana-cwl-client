@@ -18,8 +18,8 @@ authors = [
 categories = ["science"]
 
 [workspace.dependencies]
-reana = { version = "0.3", path = "crates/reana" }
-reana-auth = { version = "0.3", path = "crates/reana-auth" }
+reana = { version = "0.4", path = "crates/reana" }
+reana-auth = { version = "0.4", path = "crates/reana-auth" }
 commonwl = { version = "0.10.0", features = ["engine"] }
 async-trait = "0.1.91"
 reqwest = { "version" = "0.13.4", features = ["json", "query", "rustls"] }
