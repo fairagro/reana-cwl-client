@@ -1143,9 +1143,9 @@ dependencies = [
 
 [[package]]
 name = "commonwl"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32b32845eda5cc1e706bcf937746039ab7a9369fc73885b18c3cd96d8e616c75"
+checksum = "5426507d59426458109040c388d892027634b7b08f2219a737431ad8f1f40b72"
 dependencies = [
  "cwl_core",
  "cwl_engine",
@@ -1446,9 +1446,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_core"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9d08e6b7d59f249b95327e063110c4f5b40389af5cef499596414798bf068b6"
+checksum = "f98fea72fa1866d25b95238e52f507bab212363150cd338dd0b203786c2f9aa5"
 dependencies = [
  "anyhow",
  "base16ct 1.0.0",
@@ -1456,6 +1456,7 @@ dependencies = [
  "cwl_salad",
  "dunce",
  "miette",
+ "oneormany",
  "regex",
  "serde",
  "serde-saphyr",
@@ -1468,9 +1469,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_engine"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aeb6bfc32dc2c38156f83660e7614663258eb9c9ace4d1008853a6aac87907c5"
+checksum = "db83ff4142ff2b79ca274868842f5f43ac284ba58d2e47df3a2468bce8e9a3bc"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1478,6 +1479,7 @@ dependencies = [
  "boa_engine",
  "bollard",
  "bon",
+ "chrono",
  "crankshaft",
  "cwl_core",
  "cwl_engine_storage",
@@ -1508,9 +1510,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_engine_storage"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6248ccef12a337c1000ee3289fc3199d7f82a7015121fca09cb33711823c5ce"
+checksum = "ca67908bddf88e275ee8fcede76327aba9a6cdb5d5411a2d9bf0a95d92baa348"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1530,9 +1532,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_salad"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd67f24ee5cddee4fdb429eda794dc3e6279c16d932bf876e62e0de857bb7d5d"
+checksum = "601f641ec01496515bcfcd2447daa8fce707f962c3653e50440e873d7d58d572"
 dependencies = [
  "cwl_salad_derive",
  "serde",
@@ -1542,9 +1544,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_salad_derive"
-version = "0.10.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0dd85385c082cbecc652daa93f5816691138d6c586527f1e35951e99042c9742"
+checksum = "f65eed449caacb11af5682dbbaae656a644ec909b25a775c5ab1a653aa7c32bb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3183,6 +3185,15 @@ name = "once_cell_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
+
+[[package]]
+name = "oneormany"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30969ade7d132b911656f7aa53febb915d388ab13219100c0de7661ee0773da1"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "openssl-probe"
