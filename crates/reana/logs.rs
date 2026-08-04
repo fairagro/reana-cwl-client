@@ -40,6 +40,9 @@ pub fn get_log_outputs(message: &ReanaLogMessage) -> ClientResult<Option<Value>>
     Ok(Some(outputs))
 }
 
+///Parses Workflow Logs to get the output object
+/// # Errors
+/// if JSON parsing fails
 pub fn get_log_message(logs: &WorkflowLogsResponse) -> ClientResult<ReanaLogMessage> {
     let logs = &logs.logs;
     Ok(serde_json::from_str::<ReanaLogMessage>(logs)?)
@@ -54,6 +57,7 @@ fn extract_json(s: &str) -> Option<&str> {
     Some(&s[start..end])
 }
 
+#[must_use]
 pub fn engine_version(message: &ReanaLogMessage) -> Option<(String, String)> {
     const START: &str = "run-cwl-workflow ";
     const END: &str = "\n";
