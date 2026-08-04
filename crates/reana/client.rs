@@ -20,6 +20,7 @@ use commonwl::{
 };
 use reqwest::StatusCode;
 use std::{
+    collections::HashMap,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -96,6 +97,7 @@ pub async fn create2(
     let packed = PackedCWL {
         graph,
         cwl_version: doc.cwl_version().cloned(),
+        extension_fields: HashMap::new(),
     };
     let specification = WorkflowSpecification {
         file: cwl_file.to_string_lossy().to_string(),
