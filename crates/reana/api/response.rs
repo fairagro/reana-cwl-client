@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::models::workflows::WorkflowJson;
 use serde::{Deserialize, Serialize};
 
@@ -46,6 +48,20 @@ pub enum WorkflowStatus {
     #[default]
     Queued,
     Pending,
+}
+
+impl Display for WorkflowStatus{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            WorkflowStatus::Created => write!(f, "created"),
+            WorkflowStatus::Running => write!(f, "running"),
+            WorkflowStatus::Finished => write!(f, "finished"),
+            WorkflowStatus::Failed => write!(f, "failed"),
+            WorkflowStatus::Stopped => write!(f, "stopped"),
+            WorkflowStatus::Queued => write!(f, "queued"),
+            WorkflowStatus::Pending => write!(f, "pending"),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug, Default)]

@@ -3,11 +3,14 @@ use std::env;
 use crate::{
     cli::{DownloadArgs, UploadArgs, WorkflowArgs, WorkflowIdArgs},
     client,
-    commands::{JobLog, WorkflowLogs},
 };
 use miette::IntoDiagnostic;
 use owo_colors::OwoColorize;
-use reana::client::{self, CreatedWorkspace};
+use reana::{
+    api::response::WorkflowStatus,
+    client::{self, CreatedWorkspace},
+    logs::{JobLog, get_log_message},
+};
 use tracing::info;
 
 /// Creates and runs
@@ -135,7 +138,7 @@ pub async fn logs(args: WorkflowIdArgs) -> miette::Result<()> {
 
     let res = client::logs(client, &args.workflow_name_or_id).await?;
 
-    let parsed: WorkflowLogs = serde_json::from_str(&res.logs).into_diagnostic()?;
+    let parsed = get_log_message(&res)?;
 
     if parsed.job_logs.is_empty() {
         println!("No job logs available yet.");
@@ -147,22 +150,20 @@ pub async fn logs(args: WorkflowIdArgs) -> miette::Result<()> {
         println!();
     }
 
-    if let Some(wf_logs) = &parsed.workflow_logs
-        && !wf_logs.trim().is_empty()
-    {
+    if !parsed.workflow_logs.trim().is_empty() {
         println!("{}", "── engine logs ──".dimmed());
-        println!("{}", wf_logs.trim_end());
+        println!("{}", parsed.workflow_logs.trim_end());
     }
 
     Ok(())
 }
 
 fn print_job_header(job_id: &str, job: &JobLog) {
-    let status_colored = match job.status.as_str() {
-        "finished" => job.status.green().to_string(),
-        "failed" => job.status.red().to_string(),
-        "running" => job.status.yellow().to_string(),
-        _ => job.status.clone(),
+    let status_colored = match job.status {
+        WorkflowStatus::Finished => job.status.green().to_string(),
+        WorkflowStatus::Failed => job.status.red().to_string(),
+        WorkflowStatus::Running => job.status.yellow().to_string(),
+        _ => job.status.to_string(),
     };
 
     println!(
