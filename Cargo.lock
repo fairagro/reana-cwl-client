@@ -56,9 +56,9 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "android_system_properties"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
+checksum = "ae221649c9976a6f6c56ae1facf410f3ddb33cc661c4b7b61020a912d4237fbc"
 dependencies = [
  "libc",
 ]
@@ -1143,9 +1143,9 @@ dependencies = [
 
 [[package]]
 name = "commonwl"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb6ff42183921828c40c94144bff33fddee2e98e6b160d6a010c444ec1052e07"
+checksum = "55561036079ad31fe7823d9532bb199dbe35db402e421c838d336aa0bf47604b"
 dependencies = [
  "cwl_core",
  "cwl_engine",
@@ -1446,9 +1446,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_core"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f269cd4e16dcb87ef7740043f982f92489d05bc27dd27e299172d8ddad8c0b9"
+checksum = "196f7dbecc216c9a355a2e893fcc72fc276b03bf36a9254172f5f0861ffd10f1"
 dependencies = [
  "anyhow",
  "base16ct 1.0.0",
@@ -1469,9 +1469,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_engine"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f2bd39e22fee45b5eead39c640cd4d36b2afa056d7ca2254a46af4f45f91f9f"
+checksum = "f5c0eaedd78bf157053d389500e0355b5b4c30addbcd497894a2fa1c063b93f1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1492,6 +1492,7 @@ dependencies = [
  "nonempty",
  "pathdiff",
  "rdf",
+ "reqwest",
  "same-file",
  "semver 1.0.28",
  "serde",
@@ -1512,9 +1513,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_engine_storage"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61eb082b4400d53620fdfdf8e1889cbc366c5f447412b0ee849601bd763d6bbc"
+checksum = "2f4cc73d229e47efae3ee23df255a0c0cf016cabc69c07d5094c844735e2e95c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1534,9 +1535,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_salad"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4686c74a85339c6ae88a2f525347c4a7e0a0e1588a392ed7e00d32a47ea6185a"
+checksum = "9970670050f4b9ea60f7b33bee99aef3429596864d8323d994e424d94acb60c0"
 dependencies = [
  "cwl_salad_derive",
  "serde",
@@ -1546,9 +1547,9 @@ dependencies = [
 
 [[package]]
 name = "cwl_salad_derive"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "534d3ba2953d759815f3bbbae0bf5e7855507678f8c392bc761f82c1c2673140"
+checksum = "886447a27b0661e7db0ee0b5f59e3f238ca2f86c9966f77b1ef3ba042dd8542e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3795,7 +3796,7 @@ checksum = "bb1725bf0133fe4a3279e18efd6d69f952cb8356bf8b835023042e1b98d4c646"
 
 [[package]]
 name = "reana"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3820,7 +3821,7 @@ dependencies = [
 
 [[package]]
 name = "reana-auth"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "async-trait",
  "miette",
@@ -3830,7 +3831,7 @@ dependencies = [
 
 [[package]]
 name = "reana-cwl"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "clap",
  "dotenvy",
@@ -5836,18 +5837,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.55"
+version = "0.8.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5a105cd7b140f6eeec8acff2ea38135d3cab283ada58540f629fe51e46696eb"
+checksum = "556764e583adb45a9f8d413c2a147fa7e8d821e48e12b14fd560b607998b75eb"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.55"
+version = "0.8.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fe976fb70c78cd64cccfe3a6fc142244e8a77b70959b30faf9d0ac37ee228eb"
+checksum = "f2ab42fc20575779bd240faa45f94a74256f755c0fa9e89f0ede20d91d0cdfc1"
 dependencies = [
  "proc-macro2",
  "quote",
