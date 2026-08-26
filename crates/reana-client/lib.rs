@@ -11,8 +11,8 @@ pub mod commands;
 /// # Errors
 /// Returns Error if the given URL is invalid
 pub fn client() -> miette::Result<Arc<ReanaClient>> {
-    let token = env::var("REANA_TOKEN").into_diagnostic()?;
-    let url = env::var("REANA_URL").into_diagnostic()?;
+    let token = env::var("REANA_ACCESS_TOKEN").into_diagnostic()?;
+    let url = env::var("REANA_SERVER_URL").into_diagnostic()?;
 
     let client = ReanaClient::new(
         Url::parse(&url)
