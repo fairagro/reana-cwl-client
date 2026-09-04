@@ -70,21 +70,17 @@ impl CreatedWorkspace {
     }
 }
 
-/// Sends a create request to the REANA Endpoint using already loaded inputs
+/// Loads and packs `cwl_file` into a document graph, without contacting REANA. The returned
+/// `CWLDocument` is the (possibly tool-wrapped) unpacked document, used to resolve job input
+/// files; the `Vec<CWLDocument>` is the packed graph that becomes the submitted specification.
+///
+/// Split out of [`create2`] so callers can patch the graph -- e.g. REANA compatibility
+/// adjustments -- before handing it to [`create_from_packed`].
 /// # Errors
-/// Returns Error if the request fails, a given file does not exist or the CWL fails to pack
-/// # Panics
-/// Never
-pub async fn create2(
-    client: Arc<ReanaClient>,
-    name: &str,
-    cwl_file: &Path,
-    inputs: &InputObject,
-) -> ClientResult<CreatedWorkspace> {
+/// Returns Error if `cwl_file` does not exist or fails to load/pack
+pub fn pack_workflow_graph(cwl_file: &Path) -> ClientResult<(CWLDocument, Vec<CWLDocument>)> {
     let cwl_file = dunce::canonicalize(cwl_file)?;
     let cwl_file = cwl_file.as_path();
-
-    let workflow_id = "#main";
 
     let doc = load_cwl_file(cwl_file, true)?;
     let doc = match doc {
@@ -92,7 +88,25 @@ pub async fn create2(
         _ => doc,
     };
 
-    let graph = pack_cwl(&doc, cwl_file, Some(workflow_id))?;
+    let graph = pack_cwl(&doc, cwl_file, Some("#main"))?;
+    Ok((doc, graph))
+}
+
+/// Sends a create request to the REANA Endpoint using an already packed document graph -- see
+/// [`pack_workflow_graph`].
+/// # Errors
+/// Returns Error if the request fails
+pub async fn create_from_packed(
+    client: Arc<ReanaClient>,
+    name: &str,
+    cwl_file: &Path,
+    doc: &CWLDocument,
+    graph: Vec<CWLDocument>,
+    inputs: &InputObject,
+) -> ClientResult<CreatedWorkspace> {
+    let cwl_file = dunce::canonicalize(cwl_file)?;
+    let cwl_file = cwl_file.as_path();
+    let workflow_id = "#main";
 
     let packed = PackedCWL {
         graph,
@@ -106,7 +120,7 @@ pub async fn create2(
     };
 
     let specification_dir = cwl_file.parent().unwrap_or(Path::new("."));
-    let (inputs, local_workspace) = get_workflow_inputs(&doc, inputs, specification_dir).await?;
+    let (inputs, local_workspace) = get_workflow_inputs(doc, inputs, specification_dir).await?;
     let outputs = get_workflow_outputs(&packed, workflow_id)?;
 
     let workflow = WorkflowJson::new("0.9.4".to_string(), specification, inputs, outputs);
@@ -119,6 +133,21 @@ pub async fn create2(
         workflow,
         &local_workspace,
     ))
+}
+
+/// Sends a create request to the REANA Endpoint using already loaded inputs
+/// # Errors
+/// Returns Error if the request fails, a given file does not exist or the CWL fails to pack
+/// # Panics
+/// Never
+pub async fn create2(
+    client: Arc<ReanaClient>,
+    name: &str,
+    cwl_file: &Path,
+    inputs: &InputObject,
+) -> ClientResult<CreatedWorkspace> {
+    let (doc, graph) = pack_workflow_graph(cwl_file)?;
+    create_from_packed(client, name, cwl_file, &doc, graph, inputs).await
 }
 
 /// Sends a start request to the REANA Endpoint
