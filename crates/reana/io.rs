@@ -4,8 +4,8 @@ use crate::{
 };
 use commonwl::{
     Identifiable, OneOrMany,
-    documents::{CWLDocument, StringOrDocument},
-    engine::{InputObject, collect_inputs, flatten_inputs},
+    documents::{CWLDocument, StringOrDocument, WorkflowStep},
+    engine::{InputObject, collect_inputs, evaluate_expression_with_inputs, flatten_inputs},
     files::{Directory, File, FileOrDirectory},
     inputs::DefaultValue,
     outputs::{CommandOutputParameterType, CommandOutputSchema, CommandOutputType},
@@ -91,6 +91,7 @@ pub(crate) async fn get_workflow_inputs(
 pub(crate) fn get_workflow_outputs(
     packed: &PackedCWL,
     workflow_id: &str,
+    parameters: &HashMap<String, DefaultValue>,
 ) -> ClientResult<WorkflowOutputs> {
     let Some(CWLDocument::Workflow(workflow)) = packed
         .graph
@@ -149,7 +150,12 @@ pub(crate) fn get_workflow_outputs(
                 if let Some(binding) = &param.output_binding
                     && let Some(glob) = &binding.glob
                 {
-                    output_files.extend(glob.as_many());
+                    let step_inputs = step_input_values(step, parameters);
+                    output_files.extend(
+                        glob.as_many()
+                            .into_iter()
+                            .map(|g| evaluate_expression_with_inputs(&g, &step_inputs)),
+                    );
                 }
             }
         }
@@ -157,6 +163,33 @@ pub(crate) fn get_workflow_outputs(
     Ok(WorkflowOutputs {
         files: output_files,
     })
+}
+
+
+fn step_input_values(
+    step: &WorkflowStep,
+    parameters: &HashMap<String, DefaultValue>,
+) -> HashMap<String, DefaultValue> {
+    let mut values = HashMap::new();
+    for input in &step.r#in {
+        let Some(id) = &input.id else { continue };
+        let Some((_, local_name)) = id.rsplit_once('/') else {
+            continue;
+        };
+
+        let resolved = input
+            .source
+            .as_ref()
+            .and_then(|source| source.as_many().into_iter().next())
+            .and_then(|source| source.rsplit_once('/').map(|(_, name)| name.to_string()))
+            .and_then(|name| parameters.get(&name).cloned())
+            .or_else(|| input.default.clone());
+
+        if let Some(value) = resolved {
+            values.insert(local_name.to_string(), value);
+        }
+    }
+    values
 }
 
 pub(crate) fn common_ancestor<'a>(paths: impl Iterator<Item = &'a Path>) -> Option<PathBuf> {
@@ -300,3 +333,4 @@ pub(crate) fn output_produces_file(t: &CommandOutputParameterType) -> bool {
         },
     }
 }
+
