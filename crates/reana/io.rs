@@ -216,6 +216,7 @@ fn relativize_fod(fod: &mut FileOrDirectory, cwd: &Path) -> ClientResult<()> {
             FileOrDirectory::File(file) => {
                 *file = File::builder()
                     .location(rel.to_string_lossy().into_owned())
+                    .maybe_format(file.format.as_ref())
                     .build();
             }
             FileOrDirectory::Directory(directory) => {
