@@ -77,6 +77,7 @@ pub(crate) async fn get_workflow_inputs(
         .iter()
         .map(location_as_path)
         .collect::<ClientResult<Vec<_>>>()?;
+    let (files, directories) = deduplicate_input_paths(files, directories);
 
     Ok((
         WorkflowInputs {
@@ -215,6 +216,24 @@ pub(crate) fn common_ancestor<'a>(paths: impl Iterator<Item = &'a Path>) -> Opti
         });
     }
     result
+}
+
+fn deduplicate_input_paths(files: Vec<PathBuf>, mut directories: Vec<PathBuf>) -> (Vec<PathBuf>, Vec<PathBuf>) {
+    directories.sort();
+    directories.dedup();
+    let directories: Vec<PathBuf> = directories
+        .iter()
+        .filter(|d| !directories.iter().any(|other| other != *d && d.starts_with(other)))
+        .cloned()
+        .collect();
+
+    let mut files: Vec<PathBuf> = files
+        .into_iter()
+        .filter(|f| !directories.iter().any(|d| f.starts_with(d)))
+        .collect();
+    files.sort();
+    files.dedup();
+    (files, directories)
 }
 
 fn location_as_path(fod: &FileOrDirectory) -> ClientResult<PathBuf> {
